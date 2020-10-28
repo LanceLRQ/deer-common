@@ -8,16 +8,16 @@ package judge_result
 ------------------------
 **********/
 type JudgeResultPackage struct {
-	Version 		uint8				// (VER) Package Version
-	CompressorType	uint8				// (CMP) Compressor type: 0-disabled; 1-gzip
-	ResultSize 		uint32				// (RSZ) Result JSON Text Size
-	BodySize 		uint32				// (BSZ) Result Body Size
-	CertSize		uint16				// (CSZ) Public Certificate Size
-	SignSize		uint16				// (SSZ) Signature Size
-	Certificate		[]byte				// Public Certificate
-	Signature     	[]byte		 		// Signature: SHA256(Result + Body)
-	Result 			[]byte				// Result JSON
-	BodyPackageFile	string				// Body package file
+    Version         uint8  // (VER) Package Version
+    CompressorType  uint8  // (CMP) Compressor type: 0-disabled; 1-gzip
+    ResultSize      uint32 // (RSZ) Result JSON Text Size
+    BodySize        uint32 // (BSZ) Result Body Size
+    CertSize        uint16 // (CSZ) Public Certificate Size
+    SignSize        uint16 // (SSZ) Signature Size
+    Certificate     []byte // Public Certificate
+    Signature       []byte // Signature: SHA256(Result + Body)
+    Result          []byte // Result JSON
+    BodyPackageFile string // Body package file
 }
 
 /***
@@ -28,10 +28,10 @@ Magic | Size | FileName | Content
 ------------------------
 ***/
 type JudgeResultPackageBody struct {
-	BodyPackageFile		string
-	Files 				[]struct {
-		Size     		uint32
-		FileName 		string
-		Position 		uint32
-	}
+    BodyPackageFile string
+    Files           []struct {
+        Size     uint32
+        FileName string
+        Position uint32
+    }
 }

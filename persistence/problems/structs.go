@@ -8,14 +8,14 @@ package problems
 ------------------------
 **********/
 type ProblemPackage struct {
-	Version 		uint16				// (VER) Package Version
-	CommitVersion 	uint32				// (CMT) Commit Version
-	ConfigSize 		uint32				// (CSZ) Config JSON Text Size
-	BodySize 		uint32				// (BSZ) Result Body Size
-	CertSize		uint16				// (PCSZ) Public Certificate Size
-	SignSize		uint16				// (SSZ) Signature Size
-	Certificate		[]byte				// Public Certificate
-	Signature     	[]byte		 		// Signature: SHA256(Result + Body)
-	Configs 		[]byte				// Configs JSON
-	BodyPackageFile	string				// Body package file
+    Version         uint16 // (VER) Package Version
+    CommitVersion   uint32 // (CMT) Commit Version
+    ConfigSize      uint32 // (CSZ) Config JSON Text Size
+    BodySize        uint32 // (BSZ) Result Body Size
+    CertSize        uint16 // (PCSZ) Public Certificate Size
+    SignSize        uint16 // (SSZ) Signature Size
+    Certificate     []byte // Public Certificate
+    Signature       []byte // Signature: SHA256(Result + Body)
+    Configs         []byte // Configs JSON
+    BodyPackageFile string // Body package file
 }

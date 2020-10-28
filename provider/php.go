@@ -6,44 +6,42 @@
 package provider
 
 import (
-	"fmt"
+    "fmt"
 )
 
 type PHPCompileProvider struct {
-	CodeCompileProvider
+    CodeCompileProvider
 }
 
-
 func (prov *PHPCompileProvider) Init(code string, workDir string) error {
-	prov.isReady = false
-	prov.realTime = true
-	prov.codeContent = code
-	prov.workDir = workDir
-	prov.Name = "php"
+    prov.isReady = false
+    prov.realTime = true
+    prov.codeContent = code
+    prov.workDir = workDir
+    prov.Name = "php"
 
-	err := prov.checkWorkDir()
-	if err != nil {
-		return err
-	}
+    err := prov.checkWorkDir()
+    if err != nil {
+        return err
+    }
 
-	err = prov.initFiles(".php", "")
-	return err
+    err = prov.initFiles(".php", "")
+    return err
 }
 
 func (prov *PHPCompileProvider) Compile() (result bool, errmsg string) {
-	result, errmsg = prov.shell(fmt.Sprintf(CompileCommands.PHP, prov.codeFilePath))
-	if result {
-		prov.isReady = true
-	}
-	return
+    result, errmsg = prov.shell(fmt.Sprintf(CompileCommands.PHP, prov.codeFilePath))
+    if result {
+        prov.isReady = true
+    }
+    return
 }
 
 func (prov *PHPCompileProvider) GetRunArgs() (args []string) {
-	args = []string{ "/usr/bin/php", "-f", prov.codeFilePath }
-	return
+    args = []string{"/usr/bin/php", "-f", prov.codeFilePath}
+    return
 }
 
 func (prov *PHPCompileProvider) IsCompileError(remsg string) bool {
-	return false
+    return false
 }
-
