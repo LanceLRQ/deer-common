@@ -28,7 +28,7 @@ type TestCase struct {
     UseGenerator     bool   `json:"use_genarator"`     // Use generator
     Generator        string `json:"generator"`         // Generator script
     ValidatorVerdict bool   `json:"validator_verdict"` // Testlib validator's result
-    ValidatorComment bool   `json:"validator_comment"` // Testlib validator's output
+    ValidatorComment string   `json:"validator_comment"` // Testlib validator's output
 }
 
 // 特殊评测设置
@@ -52,7 +52,7 @@ type SpecialJudgeCheckerCase struct {
     Verdict         bool   `json:"verdict"`          // Is verdict? (下边俩是否相同)
     ExpectedVerdict int    `json:"expected_verdict"` // Expected judge result (flag) (期望的判定结果)
     CheckerVerdict  int    `json:"checker_verdict"`  // (testlib/classical)checker's judge result (flag) (检查器的判定结果)
-    CheckerComment  bool   `json:"checker_comment"`  // (testlib/classical) checker's output (检查器输出的信息)
+    CheckerComment  string   `json:"checker_comment"`  // (testlib/classical) checker's output (检查器输出的信息)
 }
 
 // TestLib设置 (只支持c++版本的testlib)
@@ -78,7 +78,7 @@ type TestlibValidatorCase struct {
     Verdict          bool   `json:"verdict"`           // Is verdict? (下边俩是否相同)
     ExpectedVerdict  bool   `json:"expected_verdict"`  // Expected result
     ValidatorVerdict bool   `json:"validator_verdict"` // Testlib validator's result
-    ValidatorComment bool   `json:"validator_comment"` // Testlib validator's output
+    ValidatorComment string   `json:"validator_comment"` // Testlib validator's output
 }
 
 // 评测结果信息
