@@ -12,7 +12,7 @@ type JudgeConfiguration struct {
     SpecialJudge  SpecialJudgeOptions           `json:"special_judge"`   // Special Judge Options
     Limitation    map[string]JudgeResourceLimit `json:"limitation"`      // Limitation
     Problem       ProblemContent                `json:"problem"`         // Problem Info
-    TestLib       TestlibOptions                `json:"testLib"`         // testlib设置
+    TestLib       TestlibOptions                `json:"testlib"`         // testlib设置
     Files         []string                      `json:"files"`           // Files List (for oj) (相对路径)
 }
 
