@@ -11,12 +11,19 @@ type GolangCompileProvider struct {
     CodeCompileProvider
 }
 
+func NewGolangCompileProvider () *GolangCompileProvider {
+    return &GolangCompileProvider{
+        CodeCompileProvider{
+            isReady: false,
+            realTime: false,
+            Name: "golang",
+        },
+    }
+}
+
 func (prov *GolangCompileProvider) Init(code string, workDir string) error {
-    prov.isReady = false
-    prov.realTime = false
     prov.codeContent = code
     prov.workDir = workDir
-    prov.Name = "golang"
 
     err := prov.checkWorkDir()
     if err != nil {

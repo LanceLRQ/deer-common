@@ -13,12 +13,19 @@ type RubyCompileProvider struct {
     CodeCompileProvider
 }
 
+func NewRubyCompileProvider () *RubyCompileProvider {
+    return &RubyCompileProvider{
+        CodeCompileProvider{
+            isReady: false,
+            realTime: true,
+            Name: "ruby",
+        },
+    }
+}
+
 func (prov *RubyCompileProvider) Init(code string, workDir string) error {
-    prov.isReady = false
-    prov.realTime = true
     prov.codeContent = code
     prov.workDir = workDir
-    prov.Name = "ruby"
 
     err := prov.checkWorkDir()
     if err != nil {

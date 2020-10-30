@@ -8,6 +8,7 @@ import (
     "github.com/LanceLRQ/deer-common/persistence"
     commonStructs "github.com/LanceLRQ/deer-common/structs"
     "github.com/LanceLRQ/deer-common/utils"
+    "github.com/LanceLRQ/deer-executor/executor"
     uuid "github.com/satori/go.uuid"
     "io"
     "os"
@@ -123,10 +124,6 @@ func PackProblems(
     configuration *commonStructs.JudgeConfiguration,
     options *persistence.ProblemPackageOptions,
 ) error {
-    //err := executor.CheckRequireFilesExists(session)
-    //if err != nil {
-    //	return err
-    //}
 
     fout, err := os.Create(options.OutFile)
     if err != nil {

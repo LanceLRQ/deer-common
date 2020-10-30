@@ -18,6 +18,17 @@ type Py3CompileProvider struct {
     CodeCompileProvider
 }
 
+func NewPy2CompileProvider () *Py2CompileProvider {
+    return &Py2CompileProvider{
+        CodeCompileProvider{
+            isReady: false,
+            realTime: true,
+            Name: "python2",
+        },
+    }
+}
+
+
 func (prov *Py2CompileProvider) Init(code string, workDir string) error {
     prov.realTime = true
     prov.codeContent = code
@@ -53,12 +64,21 @@ func (prov *Py2CompileProvider) IsCompileError(remsg string) bool {
         strings.Contains(remsg, "ImportError")
 }
 
+
+func NewPy3CompileProvider () *Py3CompileProvider {
+    return &Py3CompileProvider{
+        CodeCompileProvider{
+            isReady: false,
+            realTime: true,
+            Name: "python3",
+        },
+    }
+}
+
+
 func (prov *Py3CompileProvider) Init(code string, workDir string) error {
-    prov.isReady = false
-    prov.realTime = true
     prov.codeContent = code
     prov.workDir = workDir
-    prov.Name = "python3"
 
     err := prov.checkWorkDir()
     if err != nil {

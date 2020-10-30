@@ -16,6 +16,16 @@ type JavaCompileProvider struct {
     javaClassName string
 }
 
+func NewJavaCompileProvider() *JavaCompileProvider {
+    java := JavaCompileProvider{
+        javaClassName: "",
+    }
+    java.isReady = false
+    java.realTime = false
+    java.Name = "java"
+    return &java
+}
+
 func getJavaClassName(code string) (className string, err error) {
     reg := regexp.MustCompile(`public class ([A-Za-z0-9_$]+)`)
     matched := reg.FindSubmatch([]byte(code))

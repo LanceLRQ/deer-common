@@ -13,12 +13,20 @@ type PHPCompileProvider struct {
     CodeCompileProvider
 }
 
+func NewPHPCompileProvider () *PHPCompileProvider {
+    return &PHPCompileProvider{
+        CodeCompileProvider{
+            isReady: false,
+            realTime: true,
+            Name: "php",
+        },
+    }
+}
+
+
 func (prov *PHPCompileProvider) Init(code string, workDir string) error {
-    prov.isReady = false
-    prov.realTime = true
     prov.codeContent = code
     prov.workDir = workDir
-    prov.Name = "php"
 
     err := prov.checkWorkDir()
     if err != nil {

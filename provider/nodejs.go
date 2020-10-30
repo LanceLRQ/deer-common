@@ -14,12 +14,19 @@ type NodeJSCompileProvider struct {
     CodeCompileProvider
 }
 
+func NewNodeJSCompileProvider () *NodeJSCompileProvider {
+    return &NodeJSCompileProvider{
+        CodeCompileProvider{
+            isReady: false,
+            realTime: true,
+            Name: "nodejs",
+        },
+    }
+}
+
 func (prov *NodeJSCompileProvider) Init(code string, workDir string) error {
-    prov.isReady = false
-    prov.realTime = true
     prov.codeContent = code
     prov.workDir = workDir
-    prov.Name = "nodejs"
 
     err := prov.checkWorkDir()
     if err != nil {

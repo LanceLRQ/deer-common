@@ -15,12 +15,19 @@ type GnucppCompileProvider struct {
     CodeCompileProvider
 }
 
+func NewGnucCompileProvider () *GnucCompileProvider {
+    return &GnucCompileProvider{
+        CodeCompileProvider{
+            isReady: false,
+            realTime: false,
+            Name: "gcc",
+        },
+    }
+}
+
 func (prov *GnucCompileProvider) Init(code string, workDir string) error {
-    prov.isReady = false
-    prov.realTime = false
     prov.codeContent = code
     prov.workDir = workDir
-    prov.Name = "gcc"
 
     err := prov.checkWorkDir()
     if err != nil {
@@ -48,12 +55,19 @@ func (prov *GnucCompileProvider) IsCompileError(remsg string) bool {
     return false
 }
 
+func NewGnucppCompileProvider () *GnucppCompileProvider {
+    return &GnucppCompileProvider{
+        CodeCompileProvider{
+            isReady: false,
+            realTime: false,
+            Name: "g++",
+        },
+    }
+}
+
 func (prov *GnucppCompileProvider) Init(code string, workDir string) error {
-    prov.isReady = false
-    prov.realTime = false
     prov.codeContent = code
     prov.workDir = workDir
-    prov.Name = "g++"
 
     err := prov.checkWorkDir()
     if err != nil {
