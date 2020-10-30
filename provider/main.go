@@ -48,8 +48,6 @@ type CodeCompileProviderInterface interface {
     initFiles(codeExt string, programExt string) error
     // 执行编译
     Compile() (result bool, errmsg string)
-    // 手动编译
-    ManualCompile(source string, target string, libraryFile []string) (result bool, errmsg string)
     // 清理工作目录
     Clean()
     // 获取程序的运行命令参数组

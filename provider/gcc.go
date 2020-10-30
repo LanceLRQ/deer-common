@@ -46,6 +46,18 @@ func (prov *GnucCompileProvider) Compile() (result bool, errmsg string) {
     return
 }
 
+// 手动编译
+func (prov *GnucCompileProvider) ManualCompile(source string, target string, libraryDir []string) (bool, string) {
+    cmd := fmt.Sprintf(CompileCommands.GNUC, source, target)
+    if libraryDir != nil {
+        for _, v := range libraryDir {
+            cmd += fmt.Sprintf(" -I %s", v)
+        }
+    }
+    result, err := prov.shell(cmd)
+    return result, err
+}
+
 func (prov *GnucCompileProvider) GetRunArgs() (args []string) {
     args = []string{prov.programFilePath}
     return
@@ -93,4 +105,16 @@ func (prov *GnucppCompileProvider) GetRunArgs() (args []string) {
 
 func (prov *GnucppCompileProvider) IsCompileError(remsg string) bool {
     return false
+}
+
+// 手动编译
+func (prov *GnucppCompileProvider) ManualCompile(source string, target string, libraryDir []string) (bool, string) {
+    cmd := fmt.Sprintf(CompileCommands.GNUCPP, source, target)
+    if libraryDir != nil {
+        for _, v := range libraryDir {
+            cmd += fmt.Sprintf(" -I %s", v)
+        }
+    }
+    result, err := prov.shell(cmd)
+    return result, err
 }

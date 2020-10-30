@@ -50,3 +50,10 @@ func (prov *GolangCompileProvider) GetRunArgs() (args []string) {
 func (prov *GolangCompileProvider) IsCompileError(remsg string) bool {
     return false
 }
+
+// 手动编译
+func (prov *GolangCompileProvider) ManualCompile(source string, target string) (bool, string) {
+    cmd := fmt.Sprintf(CompileCommands.Go, source, target)
+    result, err := prov.shell(cmd)
+    return result, err
+}
