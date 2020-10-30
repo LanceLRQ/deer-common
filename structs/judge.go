@@ -74,7 +74,7 @@ type TestlibGenerator struct {
 
 // Testlib validator 样例
 type TestlibValidatorCase struct {
-    Input            string `json:"input"`             // Input (1k Limit), command support (use: <generator_name> [...args])
+    Input            string `json:"input"`             // Input (1k Limit)
     Verdict          bool   `json:"verdict"`           // Is verdict? (下边俩是否相同)
     ExpectedVerdict  bool   `json:"expected_verdict"`  // Expected result
     ValidatorVerdict bool   `json:"validator_verdict"` // Testlib validator's result
@@ -95,10 +95,9 @@ type JudgeResult struct {
 
 // 测试数据运行结果
 type TestCaseResult struct {
-    Handle string `json:"handle"` // Identifier
-
+    Handle       string `json:"handle"`        // Identifier
     Input        string `json:"-"`             // Testcase input file path (internal)
-    Output  string `json:"-"`             // Testcase output file path (internal)
+    Output       string `json:"-"`             // Testcase output file path (internal)
     ProgramOut   string `json:"program_out"`   // Program-stdout file path
     ProgramError string `json:"program_error"` // Program-stderr file path
 
