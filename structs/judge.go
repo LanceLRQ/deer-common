@@ -21,8 +21,8 @@ type TestCase struct {
     Handle           string `json:"handle"`            // Identifier
     Order            int    `json:"order"`             // Order (ASC)
     Name             string `json:"name"`              // Testcase name
-    TestCaseIn       string `json:"test_case_in"`      // Testcase input file path
-    TestCaseOut      string `json:"test_case_out"`     // Testcase output file path
+    Input            string `json:"input"`             // Testcase input file path
+    Output           string `json:"output"`            // Testcase output file path
     Visible          bool   `json:"visible"`           // Is visible(for oj)
     Enabled          bool   `json:"enabled"`           // Is enabled
     UseGenerator     bool   `json:"use_genarator"`     // Use generator
@@ -97,8 +97,8 @@ type JudgeResult struct {
 type TestCaseResult struct {
     Handle string `json:"handle"` // Identifier
 
-    TestCaseIn   string `json:"-"`             // Testcase input file path (internal)
-    TestCaseOut  string `json:"-"`             // Testcase output file path (internal)
+    Input        string `json:"-"`             // Testcase input file path (internal)
+    Output  string `json:"-"`             // Testcase output file path (internal)
     ProgramOut   string `json:"program_out"`   // Program-stdout file path
     ProgramError string `json:"program_error"` // Program-stderr file path
 
