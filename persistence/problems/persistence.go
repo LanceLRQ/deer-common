@@ -8,7 +8,6 @@ import (
     "github.com/LanceLRQ/deer-common/persistence"
     commonStructs "github.com/LanceLRQ/deer-common/structs"
     "github.com/LanceLRQ/deer-common/utils"
-    "github.com/LanceLRQ/deer-executor/executor"
     uuid "github.com/satori/go.uuid"
     "io"
     "os"
