@@ -14,6 +14,7 @@ type JudgeConfiguration struct {
     Problem       ProblemContent                `json:"problem"`         // Problem Info
     TestLib       TestlibOptions                `json:"testlib"`         // testlib设置
     Files         []string                      `json:"files"`           // Files List (for oj) (相对路径)
+    ConfigDir     string                        `json:"-"`               // 内部字段：config文件所在目录绝对路径
 }
 
 // 测试数据
