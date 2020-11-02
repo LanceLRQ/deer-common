@@ -7,6 +7,7 @@ import (
     "fmt"
     "github.com/LanceLRQ/deer-common/constants"
     "github.com/LanceLRQ/deer-common/structs"
+    "io"
     "os"
     "os/exec"
     "path"
@@ -46,11 +47,11 @@ func GetCompiledBinaryFileName(typeName, moduleName string) string {
 // 根据配置文件将对应预编译文件转换成绝对路径
 func GetCompiledBinaryFileAbsPath(typeName, moduleName, configDir string) (string, error) {
     targetName := GetCompiledBinaryFileName(typeName, moduleName)
-    return filepath.Abs(path.Join(configDir, targetName))
+    return filepath.Abs(path.Join(path.Join(configDir, "bin"), targetName))
 }
 
 // 运行UnixShell，支持context
-func RunUnixShell(context context.Context, name string, args []string) (*structs.ShellResult, error) {
+func RunUnixShell(context context.Context, name string, args []string, onStart func(io.Writer) error) (*structs.ShellResult, error) {
     fpath, err := exec.LookPath(name)
     if err != nil {
         return nil, err
@@ -60,15 +61,30 @@ func RunUnixShell(context context.Context, name string, args []string) (*structs
     var stderr, stdout bytes.Buffer
     proc.Stderr = &stderr
     proc.Stdout = &stdout
-    err = proc.Run()
+    stdin, err := proc.StdinPipe()
+    if err != nil {
+        return nil, err
+    }
+    //err = proc.Run()
+    if err := proc.Start(); err != nil {
+        return nil, err
+    }
+    if onStart != nil {
+        err = onStart(stdin)
+        if err != nil {
+            return nil, err
+        }
+    }
+    _ = stdin.Close()
+    err = proc.Wait()
     result.Stdout = stdout.String()
     result.Stderr = stderr.String()
     result.ExitCode = proc.ProcessState.ExitCode()
     if err != nil {
         result.Success = false
-        if serr := result.Stderr; serr != "" {
-            result.Stderr += "\n" + err.Error()
-        } else {
+        if serr := result.Stderr; serr == "" {
+        //    result.Stderr += "\n" + err.Error()
+        //} else {
             result.Stderr += err.Error()
         }
         return &result, nil

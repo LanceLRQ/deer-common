@@ -124,7 +124,7 @@ func (prov *CodeCompileProvider) shell(commands string) (success bool, errout st
     if len(cmdArgs) <= 1 {
         return false, "not enough arguments for compiler"
     }
-    ret, err := utils.RunUnixShell(ctx, cmdArgs[0], cmdArgs[1:])
+    ret, err := utils.RunUnixShell(ctx, cmdArgs[0], cmdArgs[1:], nil)
     if err != nil {
         return false, err.Error()
     }
