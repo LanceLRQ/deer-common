@@ -13,6 +13,7 @@ import (
     "path"
     "path/filepath"
     "runtime"
+    "strings"
     "syscall"
 )
 
@@ -48,6 +49,15 @@ func GetCompiledBinaryFileName(typeName, moduleName string) string {
 func GetCompiledBinaryFileAbsPath(typeName, moduleName, configDir string) (string, error) {
     targetName := GetCompiledBinaryFileName(typeName, moduleName)
     return filepath.Abs(path.Join(path.Join(configDir, "bin"), targetName))
+}
+
+// 解析generator脚本
+func ParseGeneratorScript(script string) (string, []string, error) {
+    vals := strings.Split(script, " ")
+    if len(vals) <= 1 {
+        return "", nil, fmt.Errorf("generator calling script error")
+    }
+    return vals[0], vals[1:], nil
 }
 
 // 运行UnixShell，支持context
