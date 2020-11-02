@@ -6,15 +6,16 @@
 package provider
 
 import (
-    "bytes"
+    "context"
     "encoding/json"
     "fmt"
+    "github.com/LanceLRQ/deer-common/utils"
     "github.com/satori/go.uuid"
     "io/ioutil"
     "os"
-    "os/exec"
     "path"
     "strings"
+    "time"
 )
 
 type CompileCommandsStruct struct {
@@ -118,16 +119,17 @@ func (prov *CodeCompileProvider) Clean() {
 }
 
 func (prov *CodeCompileProvider) shell(commands string) (success bool, errout string) {
+    ctx, _ := context.WithTimeout(context.Background(), 10 * time.Second)
     cmdArgs := strings.Split(commands, " ")
     if len(cmdArgs) <= 1 {
-        return false, "Not enough arguments for compiler"
+        return false, "not enough arguments for compiler"
     }
-    proc := exec.Command(cmdArgs[0], cmdArgs[1:]...)
-    var stderr bytes.Buffer
-    proc.Stderr = &stderr
-    err := proc.Run()
+    ret, err := utils.RunUnixShell(ctx, cmdArgs[0], cmdArgs[1:])
     if err != nil {
-        return false, stderr.String()
+        return false, err.Error()
+    }
+    if !ret.Success {
+        return false, ret.Stderr
     }
     return true, ""
 }
