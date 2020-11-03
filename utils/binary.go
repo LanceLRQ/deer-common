@@ -119,6 +119,6 @@ func CallGenerator(ctx context.Context, tc *structs.TestCase, configDir string) 
     if rel.Success {
         return []byte(rel.Stdout), nil
     } else {
-        return nil, fmt.Errorf("generate data error")
+        return nil, fmt.Errorf("generator error")
     }
 }

@@ -17,7 +17,6 @@ type ProblemContent struct {
     Tips        string                      `json:"tips"`               // Solution tips
     ProblemType int							`json:"problem_type"`		// 题目类型
     DemoCases   map[string]JudgeDemoCase 	`json:"demo_cases"`			// 代码填空样例数据
-    AnswerCases map[uint]string				`json:"answer_cases"`		// 答案样例代码(代码填空模式不使用这个字段)
 }
 
 // 代码填空样例 (for oj)
