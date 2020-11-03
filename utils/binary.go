@@ -102,3 +102,23 @@ func RunUnixShell(context context.Context, name string, args []string, onStart f
     result.Success = true
     return &result, nil
 }
+
+func CallGenerator(ctx context.Context, tc *structs.TestCase, configDir string) ([]byte, error) {
+    name, args, err := ParseGeneratorScript(tc.Generator)
+    if err != nil {
+        return nil, err
+    }
+    gBin, err := GetCompiledBinaryFileAbsPath("generator", name, configDir)
+    if err != nil {
+        return nil, err
+    }
+    rel, err := RunUnixShell(ctx, gBin, args, nil)
+    if err != nil {
+        return nil, err
+    }
+    if rel.Success {
+        return []byte(rel.Stdout), nil
+    } else {
+        return nil, fmt.Errorf("generate data error")
+    }
+}
