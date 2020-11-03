@@ -31,15 +31,15 @@ type CompileCommandsStruct struct {
 }
 
 var CompileCommands = CompileCommandsStruct{
-    GNUC:    "/usr/bin/gcc %s -o %s -ansi -fno-asm -Wall -std=c11 -lm",
-    GNUCPP:  "/usr/bin/g++ %s -o %s -ansi -fno-asm -Wall -lm -std=c++11",
-    Java:    "/usr/bin/javac -encoding utf-8 %s -d %s",
-    Go:      "/usr/bin/go build -o %s %s",
-    NodeJS:  "/usr/bin/node -c %s",
-    PHP:     "/usr/bin/php -l -f %s",
-    Ruby:    "/usr/bin/ruby -c %s",
-    Python2: "/usr/bin/python -u %s",
-    Python3: "/usr/bin/python3 -u %s",
+    GNUC:    "gcc %s -o %s -ansi -fno-asm -Wall -std=c11 -lm",
+    GNUCPP:  "g++ %s -o %s -ansi -fno-asm -Wall -lm -std=c++11",
+    Java:    "javac -encoding utf-8 %s -d %s",
+    Go:      "go build -o %s %s",
+    NodeJS:  "node -c %s",
+    PHP:     "php -l -f %s",
+    Ruby:    "ruby -c %s",
+    Python2: "python -u %s",
+    Python3: "python3 -u %s",
 }
 
 type CodeCompileProviderInterface interface {
