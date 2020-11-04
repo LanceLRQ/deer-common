@@ -45,7 +45,7 @@ type TestCase struct {
 type SpecialJudgeOptions struct {
     Name               string                    `json:"name"`                 // Name, default is "checker"
     Mode               int                       `json:"mode"`                 // Mode；0-Disabled；1-Normal；2-Interactor
-    CheckerLang        string                    `json:"checker_lang"`         // Checker languages, support gcc, g++(default) and golang
+    CheckerLang        string                    `json:"checker_lang"`         // Checker languages, support gcc, g++(default) and golang, not support auto!
     Checker            string                    `json:"checker"`              // Checker file path (Use code file is better then compiled binary!)
     RedirectProgramOut bool                      `json:"redirect_program_out"` // Redirect target program's STDOUT to checker's STDIN (checker mode). if not, redirect testcase-in file to checker's STDIN
     TimeLimit          int                       `json:"time_limit"`           // Time limit (ms)
