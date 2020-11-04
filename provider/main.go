@@ -9,6 +9,7 @@ import (
     "context"
     "encoding/json"
     "fmt"
+    "github.com/LanceLRQ/deer-common/structs"
     "github.com/LanceLRQ/deer-common/utils"
     "github.com/satori/go.uuid"
     "io/ioutil"
@@ -124,7 +125,13 @@ func (prov *CodeCompileProvider) shell(commands string) (success bool, errout st
     if len(cmdArgs) <= 1 {
         return false, "not enough arguments for compiler"
     }
-    ret, err := utils.RunUnixShell(ctx, cmdArgs[0], cmdArgs[1:], nil)
+    ret, err := utils.RunUnixShell(&structs.ShellOptions{
+        Context:   ctx,
+        Name:      cmdArgs[0],
+        Args:      cmdArgs[1:],
+        StdWriter: nil,
+        OnStart:   nil,
+    })
     if err != nil {
         return false, err.Error()
     }

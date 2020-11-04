@@ -7,7 +7,6 @@ import (
     "fmt"
     "github.com/LanceLRQ/deer-common/constants"
     "github.com/LanceLRQ/deer-common/structs"
-    "io"
     "os"
     "os/exec"
     "path"
@@ -61,40 +60,61 @@ func ParseGeneratorScript(script string) (string, []string, error) {
 }
 
 // 运行UnixShell，支持context
-func RunUnixShell(context context.Context, name string, args []string, onStart func(io.Writer) error) (*structs.ShellResult, error) {
-    fpath, err := exec.LookPath(name)
+func RunUnixShell(options *structs.ShellOptions) (*structs.ShellResult, error) {
+    fpath, err := exec.LookPath(options.Name)
     if err != nil {
         return nil, err
     }
     result := structs.ShellResult{}
-    proc := exec.CommandContext(context, fpath, args...)
+    proc := exec.CommandContext(options.Context, fpath, options.Args...)
     var stderr, stdout bytes.Buffer
-    proc.Stderr = &stderr
-    proc.Stdout = &stdout
-    stdin, err := proc.StdinPipe()
-    if err != nil {
-        return nil, err
+
+    if options.StdWriter != nil && options.StdWriter.Output != nil {
+        proc.Stdout = options.StdWriter.Output
+    } else {
+        proc.Stdout = &stdout
     }
+    if options.StdWriter != nil && options.StdWriter.Error != nil {
+        proc.Stderr = options.StdWriter.Error
+    } else {
+        proc.Stderr = &stderr
+    }
+
+    if options.StdWriter != nil && options.StdWriter.Input != nil {
+        proc.Stdin = options.StdWriter.Input
+    } else {
+        stdin, err := proc.StdinPipe()
+        if err != nil {
+            return nil, err
+        }
+        if options.OnStart != nil {
+            err = options.OnStart(stdin)
+            if err != nil {
+                return nil, err
+            }
+        }
+        _ = stdin.Close()
+    }
+
     //err = proc.Run()
     if err := proc.Start(); err != nil {
         return nil, err
     }
-    if onStart != nil {
-        err = onStart(stdin)
-        if err != nil {
-            return nil, err
-        }
-    }
-    _ = stdin.Close()
+
     err = proc.Wait()
-    result.Stdout = stdout.String()
-    result.Stderr = stderr.String()
+
+    if options.StdWriter == nil || options.StdWriter.Output == nil {
+        result.Stdout = stdout.String()
+    }
+    if options.StdWriter == nil || options.StdWriter.Error == nil {
+        result.Stderr = stderr.String()
+    }
     result.ExitCode = proc.ProcessState.ExitCode()
+    result.Signal = int(proc.ProcessState.Sys().(syscall.WaitStatus).Signal())
     if err != nil {
         result.Success = false
+        result.ErrorMessage = err.Error()
         if serr := result.Stderr; serr == "" {
-        //    result.Stderr += "\n" + err.Error()
-        //} else {
             result.Stderr += err.Error()
         }
         return &result, nil
@@ -112,7 +132,13 @@ func CallGenerator(ctx context.Context, tc *structs.TestCase, configDir string) 
     if err != nil {
         return nil, err
     }
-    rel, err := RunUnixShell(ctx, gBin, args, nil)
+    rel, err := RunUnixShell(&structs.ShellOptions{
+        Context:   ctx,
+        Name:      gBin,
+        Args:      args,
+        StdWriter: nil,
+        OnStart:   nil,
+    })
     if err != nil {
         return nil, err
     }
