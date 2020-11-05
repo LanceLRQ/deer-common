@@ -117,6 +117,7 @@ type TestCaseResult struct {
     JudgerReport string `json:"judger_report"` // Special judger checker's report file
 
     JudgeResult int    `json:"judge_result"`  // Judge result flag number
+    PartiallyScore  int `json:"partially_score"` // Testlib Partially Score or Math.floor(SameLines / TotalLines)
     TextDiffLog string `json:"text_diff_log"` // Text Checkup Log
     TimeUsed    int    `json:"time_used"`     // Maximum time used
     MemoryUsed  int    `json:"memory_used"`   // Maximum memory used
