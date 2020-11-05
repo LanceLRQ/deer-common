@@ -1,5 +1,7 @@
 package structs
 
+import "encoding/xml"
+
 // 评测配置信息
 type JudgeConfiguration struct {
     TestCases     []TestCase                    `json:"test_cases"`      // Test cases
@@ -133,7 +135,7 @@ type TestCaseResult struct {
     SPJTimeUsed   int    `json:"spj_time_used"`     // Special judge maximum time used
     SPJMemoryUsed int    `json:"spj_memory_used"`   // Special judge maximum memory used
     SPJReSignum   int    `json:"spj_re_signal_num"` // Special judge runtime error signal number
-    SPJErrMsg     string `json:"spj_error_msg"`     // Special judge checker error msg
+    SPJMsg        string `json:"spj_msg"`           // Special judge checker  msg
 }
 
 // 评测资源限制信息
@@ -142,4 +144,11 @@ type JudgeResourceLimit struct {
     MemoryLimit   int `json:"memory_limit"`    // Memory limit (KB)
     RealTimeLimit int `json:"real_time_limit"` // Real Time Limit (ms) (optional)
     FileSizeLimit int `json:"file_size_limit"` // File Size Limit (bytes) (optional)
+}
+
+type TestlibCheckerResult struct {
+    XMLName     xml.Name `xml:"result"`
+    Outcome     string   `xml:"outcome,attr"`
+    PcType      string   `xml:"pctype,attr"`
+    Description string   `xml:",innerxml"`
 }

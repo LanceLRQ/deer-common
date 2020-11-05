@@ -21,3 +21,7 @@ func Contains(array interface{}, obj interface{}) bool {
 
     return false
 }
+
+func ParseTestlibCheckerOutput (report string) {
+
+}
