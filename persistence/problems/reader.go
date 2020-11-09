@@ -184,9 +184,9 @@ func unzip(zipFile string, destDir string) error {
 }
 
 // 读取题目信息
-func ReadProblemInfo(problemFile string, unpackBody bool, workDir string) (*commonStructs.JudgeConfiguration, string, error) {
+func ReadProblemInfo(problemFile string, unpackBody, validate bool, workDir string) (*commonStructs.JudgeConfiguration, string, error) {
 
-    pack, err := readProblemPackage(problemFile, true, unpackBody)
+    pack, err := readProblemPackage(problemFile, validate, unpackBody)
     if err != nil {
         return nil, "", err
     }

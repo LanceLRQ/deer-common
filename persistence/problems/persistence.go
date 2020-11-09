@@ -27,23 +27,28 @@ func mergeFilesBinary(options *persistence.ProblemPackageOptions) (string, error
     zipWriter := zip.NewWriter(zipFile)
     defer zipWriter.Close()
 
-    err = filepath.Walk(options.ConfigDir, func(path string, info os.FileInfo, err error) error {
+    err = filepath.Walk(options.ConfigDir, func(zpath string, info os.FileInfo, err error) error {
         if err != nil {
             return err
         }
-        if path == options.ConfigFile {
-            // 跳过配置文件
+        // 跳过配置文件
+        if zpath == options.ConfigFile {
             return nil
         }
-        if path == options.ConfigDir {
-            // 跳过配置文件夹
+        // 跳过配置文件夹
+        if zpath == options.ConfigDir {
+            return nil
+        }
+        // 跳过二进制文件夹
+        binDir := path.Join( options.ConfigDir, "bin")
+        if strings.HasPrefix(zpath, binDir) {
             return nil
         }
         header, err := zip.FileInfoHeader(info)
         if err != nil {
             return err
         }
-        header.Name = strings.TrimPrefix(path, options.ConfigDir+"/")
+        header.Name = strings.TrimPrefix(zpath, options.ConfigDir+"/")
         if info.IsDir() {
             header.Name += "/"
         } else {
@@ -54,7 +59,7 @@ func mergeFilesBinary(options *persistence.ProblemPackageOptions) (string, error
             return err
         }
         if !info.IsDir() {
-            file, err := os.Open(path)
+            file, err := os.Open(zpath)
             if err != nil {
                 return err
             }
