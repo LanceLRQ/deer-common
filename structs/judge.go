@@ -1,6 +1,9 @@
 package structs
 
-import "encoding/xml"
+import (
+    "encoding/xml"
+    "github.com/LanceLRQ/deer-common/logger"
+)
 
 // 评测配置信息
 type JudgeConfiguration struct {
@@ -96,14 +99,15 @@ type TestlibValidatorCase struct {
 
 // 评测结果信息
 type JudgeResult struct {
-    SessionId   string           `json:"session_id"`   // Judge Session Id
-    JudgeResult int              `json:"judge_result"` // Judge result flag number
-    TimeUsed    int              `json:"time_used"`    // Maximum time used
-    MemoryUsed  int              `json:"memory_used"`  // Maximum memory used
-    TestCases   []TestCaseResult `json:"test_cases"`   // Testcase Results
-    ReInfo      string           `json:"re_info"`      // ReInfo when Runtime Error or special judge Runtime Error
-    SeInfo      string           `json:"se_info"`      // SeInfo when System Error
-    CeInfo      string           `json:"ce_info"`      // CeInfo when Compile Error
+    SessionId   string                `json:"session_id"`   // Judge Session Id
+    JudgeResult int                   `json:"judge_result"` // Judge result flag number
+    TimeUsed    int                   `json:"time_used"`    // Maximum time used
+    MemoryUsed  int                   `json:"memory_used"`  // Maximum memory used
+    TestCases   []TestCaseResult      `json:"test_cases"`   // Testcase Results
+    ReInfo      string                `json:"re_info"`      // ReInfo when Runtime Error or special judge Runtime Error
+    SeInfo      string                `json:"se_info"`      // SeInfo when System Error
+    CeInfo      string                `json:"ce_info"`      // CeInfo when Compile Error
+    JudgeLogs   []logger.JudgeLogItem `json:"judge_logs"`   // Judge Logs
 }
 
 // 测试数据运行结果
