@@ -8,18 +8,18 @@ import (
 )
 
 const  (
-    LogLevelInfo = iota + 1
+    LogLevelDebug = iota + 1
+    LogLevelInfo
     LogLevelWarn
     LogLevelError
-    LogLevelDebug
 )
 
 var LogLevelMapping = []string{
     "",
+    "DEBUG",
     "INFO",
     "WARN",
     "ERROR",
-    "DEBUG",
 }
 
 var LogLevelStrMapping = map[string]int{
