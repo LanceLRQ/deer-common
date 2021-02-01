@@ -5,6 +5,7 @@ import (
     "compress/gzip"
     "encoding/binary"
     "fmt"
+    "github.com/LanceLRQ/deer-common/constants"
     "github.com/LanceLRQ/deer-common/persistence"
     commonStructs "github.com/LanceLRQ/deer-common/structs"
     "github.com/LanceLRQ/deer-common/utils"
@@ -42,7 +43,6 @@ func readAndWriteToTempFile(writer io.Writer, fileName string, workDir string) e
 func mergeResultBinary(
     options *persistence.JudgeResultPersisOptions,
     judgeResult *commonStructs.JudgeResult,
-    compressType uint8,
 ) (string, error) {
     tmpFileName := uuid.NewV1().String() + ".tmp"
     tmpFilePath := path.Join("/tmp/", tmpFileName)
@@ -52,7 +52,7 @@ func mergeResultBinary(
         return "", fmt.Errorf("create temp file error: %s", err.Error())
     }
     defer tmpFile.Close()
-    if compressType == 1 { // GZIP
+    if options.CompressorType == 1 { // GZIP
         zipWriter := gzip.NewWriter(tmpFile)
         testCaseWriter = zipWriter
         defer zipWriter.Close()
@@ -61,6 +61,10 @@ func mergeResultBinary(
     }
 
     for _, testCase := range judgeResult.TestCases {
+        // 如果不需要保留AC的数据
+        if !options.SaveAcceptedData && testCase.JudgeResult == constants.JudgeFlagAC {
+            continue
+        }
         err = readAndWriteToTempFile(testCaseWriter, testCase.ProgramOut, options.SessionDir)
         _ = readAndWriteToTempFile(testCaseWriter, testCase.ProgramError, options.SessionDir)
         _ = readAndWriteToTempFile(testCaseWriter, testCase.JudgerOut, options.SessionDir)
@@ -140,7 +144,7 @@ func PersistentJudgeResult(
 
     resultBytes := utils.ObjectToJSONByte(judgeResult)
 
-    bodyFile, err := mergeResultBinary(options, judgeResult, options.CompressorType)
+    bodyFile, err := mergeResultBinary(options, judgeResult)
     if err != nil {
         return err
     }
