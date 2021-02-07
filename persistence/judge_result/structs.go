@@ -17,10 +17,11 @@ type JudgeResultPackage struct {
     Certificate     []byte // Public Certificate
     Signature       []byte // Signature: SHA256(Result + Body)
     Result          []byte // Result JSON
-    BodyPackageFile string // Body package file
+    BodyPackageFile string // Body package file （内部成员，不输出）
 }
 
 /***
+已弃用
 ------------------------
 Magic | Size | FileName | Content
 ------------------------
