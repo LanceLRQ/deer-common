@@ -148,3 +148,39 @@ func CallGenerator(ctx context.Context, tc *structs.TestCase, configDir string) 
         return nil, fmt.Errorf("generator error")
     }
 }
+
+
+// 判断是否是题目包
+func IsZipFile(filePath string) (bool, error) {
+    fp, err := os.OpenFile(filePath, os.O_RDONLY|syscall.O_NONBLOCK, 0)
+    if err != nil {
+        return false, fmt.Errorf("open file error")
+    }
+    defer fp.Close()
+
+    var magic uint32 = 0
+    err = binary.Read(fp, binary.BigEndian, &magic)
+    if err != nil {
+        return false, err
+    }
+    fmt.Println(magic, constants.ZipArchiveMagicCode)
+    return magic == constants.ZipArchiveMagicCode, nil
+}
+
+
+// 判断是否是题目包
+func IsProblemPackage(filePath string) (bool, error) {
+    fp, err := os.OpenFile(filePath, os.O_RDONLY|syscall.O_NONBLOCK, 0)
+    if err != nil {
+        return false, fmt.Errorf("open file error")
+    }
+    defer fp.Close()
+
+    var magic uint16 = 0
+    err = binary.Read(fp, binary.BigEndian, &magic)
+    if err != nil {
+        return false, err
+    }
+
+    return magic == constants.ProblemPackageMagicCode, nil
+}

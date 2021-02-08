@@ -6,6 +6,7 @@ import (
     "compress/gzip"
     "encoding/binary"
     "fmt"
+    "github.com/LanceLRQ/deer-common/constants"
     "github.com/LanceLRQ/deer-common/persistence"
     commonStructs "github.com/LanceLRQ/deer-common/structs"
     "github.com/LanceLRQ/deer-common/utils"
@@ -24,7 +25,7 @@ func parseJudgeResultBinary(reader io.Reader) (*JudgeResultPackage, error) {
     if err := binary.Read(reader, binary.BigEndian, &magic); err != nil {
         return nil, fmt.Errorf("read file error: %s", err.Error())
     }
-    if magic != persistence.JudgeResultMagicCode {
+    if magic != constants.JudgeResultMagicCode {
         return nil, fmt.Errorf("not deer-executor judge result file")
     }
     // 开始解析package

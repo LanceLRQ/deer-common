@@ -7,6 +7,7 @@ import (
     "crypto/rsa"
     "encoding/binary"
     "fmt"
+    "github.com/LanceLRQ/deer-common/constants"
     "github.com/LanceLRQ/deer-common/persistence"
     commonStructs "github.com/LanceLRQ/deer-common/structs"
     "github.com/LanceLRQ/deer-common/utils"
@@ -15,9 +16,7 @@ import (
     "io"
     "os"
     "path"
-    "path/filepath"
     "reflect"
-    "syscall"
 )
 
 // 解析判题结果
@@ -27,7 +26,7 @@ func parseProblemPackageBinary(reader io.Reader, unpackBody bool) (*ProblemPacka
     if err := binary.Read(reader, binary.BigEndian, &magic); err != nil {
         return nil, fmt.Errorf("read file error: %s", err.Error())
     }
-    if magic != persistence.ProblemPackageMagicCode {
+    if magic != constants.ProblemPackageMagicCode {
         return nil, fmt.Errorf("not deer-executor problem package file")
     }
     // 开始解析package
@@ -146,46 +145,8 @@ func readProblemPackage(problemFile string, validate bool, unpackBody bool) (*Pr
     return pack, nil
 }
 
-func unzip(zipFile string, destDir string) error {
-    zipReader, err := zip.OpenReader(zipFile)
-    if err != nil {
-        return err
-    }
-    defer zipReader.Close()
-
-    for _, f := range zipReader.File {
-        fpath := filepath.Join(destDir, f.Name)
-        if f.FileInfo().IsDir() {
-            os.MkdirAll(fpath, os.ModePerm)
-        } else {
-            if err = os.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
-                return err
-            }
-
-            inFile, err := f.Open()
-            if err != nil {
-                return err
-            }
-            defer inFile.Close()
-
-            outFile, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
-            if err != nil {
-                return err
-            }
-            defer outFile.Close()
-
-            _, err = io.Copy(outFile, inFile)
-            if err != nil {
-                return err
-            }
-        }
-    }
-    return nil
-}
-
 // 读取题目信息
 func ReadProblemInfo(problemFile string, unpackBody, validate bool, workDir string) (*commonStructs.JudgeConfiguration, string, error) {
-
     pack, err := readProblemPackage(problemFile, validate, unpackBody)
     if err != nil {
         return nil, "", err
@@ -194,7 +155,13 @@ func ReadProblemInfo(problemFile string, unpackBody, validate bool, workDir stri
     utils.JSONBytesObject(pack.Configs, &config)
 
     if unpackBody {
-        err = unzip(pack.BodyPackageFile, workDir)
+        zipReader, err := zip.OpenReader(pack.BodyPackageFile)
+        if err != nil {
+            return nil, "", err
+        }
+        defer zipReader.Close()
+
+        err = UnZip(zipReader, workDir)
         if err != nil {
             return nil, "", err
         }
@@ -236,21 +203,4 @@ func ReadProblemGPGInfo(problemFile string) (string, error) {
         }
         return rel, nil
     }
-}
-
-// 判断是否是题目包
-func IsProblemPackage(filePath string) (bool, error) {
-    fp, err := os.OpenFile(filePath, os.O_RDONLY|syscall.O_NONBLOCK, 0)
-    if err != nil {
-        return false, fmt.Errorf("open file error")
-    }
-    defer fp.Close()
-
-    var magic uint16 = 0
-    err = binary.Read(fp, binary.BigEndian, &magic)
-    if err != nil {
-        return false, err
-    }
-
-    return magic == persistence.ProblemPackageMagicCode, nil
 }

@@ -5,6 +5,7 @@ import (
     "bytes"
     "encoding/binary"
     "fmt"
+    "github.com/LanceLRQ/deer-common/constants"
     "github.com/LanceLRQ/deer-common/persistence"
     commonStructs "github.com/LanceLRQ/deer-common/structs"
     "github.com/LanceLRQ/deer-common/utils"
@@ -79,7 +80,7 @@ func writeFileHeader(writer io.Writer, pack ProblemPackage) error {
     buf32 := make([]byte, 4)
 
     // magic
-    binary.BigEndian.PutUint16(buf16, persistence.ProblemPackageMagicCode)
+    binary.BigEndian.PutUint16(buf16, constants.ProblemPackageMagicCode)
     if _, err := writer.Write(buf16); err != nil {
         return fmt.Errorf("write problem file error: %s", err.Error())
     }

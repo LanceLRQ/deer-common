@@ -43,7 +43,7 @@ func packZipFile (rootPath string, targetPath string) error {
         }
         // 排除bin目录
         if strings.HasPrefix(header.Name, "bin/") { return nil }
-        fmt.Println(header.Name)
+
         writer, err := zipWriter.CreateHeader(header)
         if err != nil {
             return err

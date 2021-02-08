@@ -23,7 +23,7 @@ func readAndWriteToTempFile(writer io.Writer, fileName string, workDir string) e
     if err != nil {
         return err
     }
-    binary.BigEndian.PutUint16(buf16, persistence.JudgeBodyPackageMagicCode)
+    binary.BigEndian.PutUint16(buf16, constants.JudgeBodyPackageMagicCode)
     binary.BigEndian.PutUint32(buf32, uint32(len(body)))
     if _, err := writer.Write(buf16); err != nil {
         return fmt.Errorf("write temp file error: %s", err.Error())
@@ -81,7 +81,7 @@ func writeFileHeaderAndResult(writer io.Writer, pack JudgeResultPackage) error {
     buf32 := make([]byte, 4)
 
     // magic
-    binary.BigEndian.PutUint16(buf16, persistence.JudgeResultMagicCode)
+    binary.BigEndian.PutUint16(buf16, constants.JudgeResultMagicCode)
     if _, err := writer.Write(buf16); err != nil {
         return fmt.Errorf("write result file error: %s", err.Error())
     }
