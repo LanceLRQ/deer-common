@@ -163,7 +163,6 @@ func IsZipFile(filePath string) (bool, error) {
     if err != nil {
         return false, err
     }
-    fmt.Println(magic, constants.ZipArchiveMagicCode)
     return magic == constants.ZipArchiveMagicCode, nil
 }
 
