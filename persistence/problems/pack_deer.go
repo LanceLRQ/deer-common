@@ -124,22 +124,23 @@ func writeFileHeader(writer io.Writer, pack ProblemPackage) error {
     return nil
 }
 
+// 执行题目数据表打包操作
 func PackProblems(
     configuration *commonStructs.JudgeConfiguration,
     options *persistence.ProblemPackageOptions,
 ) error {
-
-    fout, err := os.Create(options.OutFile)
-    if err != nil {
-        return fmt.Errorf("create problem file error: %s", err.Error())
-    }
-    defer fout.Close()
 
     if options.DigitalSign {
         if options.DigitalPEM.PublicKey == nil || options.DigitalPEM.PrivateKey == nil {
             return fmt.Errorf("digital sign need public key and private key")
         }
     }
+
+    fout, err := os.Create(options.OutFile)
+    if err != nil {
+        return fmt.Errorf("create problem package file error: %s", err.Error())
+    }
+    defer fout.Close()
 
     configBytes := utils.ObjectToJSONByte(configuration)
 
@@ -189,6 +190,7 @@ func PackProblems(
         return err
     }
     _ = fBody.Close()
+    // GPG signature
     if options.DigitalSign {
         hash, err = persistence.RSA2048Sign(hash, options.DigitalPEM.PrivateKey)
         if err != nil {
