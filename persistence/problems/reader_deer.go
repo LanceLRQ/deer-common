@@ -121,7 +121,7 @@ func validateProblemPackage(pack *ProblemPackage) (bool, error) {
     return true, nil
 }
 
-func readProblemPackage(problemFile string, validate bool, unpackBody bool) (*ProblemPackage, error) {
+func readProblemPackage(problemFile string, unpack bool) (*ProblemPackage, error) {
     fp, err := os.Open(problemFile)
     if err != nil {
         return nil, fmt.Errorf("open file (%s) error: %s", problemFile, err.Error())
@@ -129,35 +129,50 @@ func readProblemPackage(problemFile string, validate bool, unpackBody bool) (*Pr
     defer fp.Close()
 
     reader := bufio.NewReader(fp)
-    pack, err := parseProblemPackageBinary(reader, unpackBody)
+    pack, err := parseProblemPackageBinary(reader, unpack)
     if err != nil {
         return nil, err
     }
-    if validate && unpackBody {
-        ok, err := validateProblemPackage(pack)
-        if !ok || err != nil {
-            if err != nil {
-                return nil, fmt.Errorf("validate package hash error: %s", err.Error())
-            }
-            return nil, fmt.Errorf("validate package hash error")
-        }
-    }
+
     return pack, nil
 }
 
+func doProblemPackageValidation (pack *ProblemPackage, validate bool) error {
+    ok, err := validateProblemPackage(pack)
+    var errmsg error
+    if !ok || err != nil {
+        if err != nil {
+            errmsg = fmt.Errorf("validate package hash error: %s", err.Error())
+        }
+        errmsg = fmt.Errorf("validate package hash error")
+    }
+    // 如果出错并且现在必须要验证错误，则抛出
+    if errmsg != nil && validate {
+        return errmsg
+    } else {
+        fmt.Println("Warning! Package signature validation failed.")
+    }
+    return nil
+}
+
 // 读取题目信息
-func ReadProblemInfo(problemFile string, unpackBody, validate bool, workDir string) (*commonStructs.JudgeConfiguration, string, error) {
-    pack, err := readProblemPackage(problemFile, validate, unpackBody)
+func ReadProblemInfo(problemFile string, unpack, validate bool, workDir string) (*commonStructs.JudgeConfiguration, string, error) {
+    pack, err := readProblemPackage(problemFile, unpack)
     if err != nil {
         return nil, "", err
     }
     config := commonStructs.JudgeConfiguration{}
     utils.JSONBytesObject(pack.Configs, &config)
 
-    if unpackBody {
+    err = doProblemPackageValidation(pack, validate)
+    if err != nil {
+        return nil, "", err
+    }
+
+    if unpack {
         zipReader, err := zip.OpenReader(pack.BodyPackageFile)
         if err != nil {
-            return nil, "", err
+            return nil, "", fmt.Errorf("open body file (%s) error: %s", problemFile, err.Error())
         }
         defer zipReader.Close()
 
@@ -183,10 +198,16 @@ func ReadProblemInfo(problemFile string, unpackBody, validate bool, workDir stri
 
 // 读取题目携带的GPG信息
 func ReadProblemGPGInfo(problemFile string) (string, error) {
-    pack, err := readProblemPackage(problemFile, false, false)
+    pack, err := readProblemPackage(problemFile, false)
     if err != nil {
         return "", err
     }
+
+    err = doProblemPackageValidation(pack, false)
+    if err != nil {
+        return "", err
+    }
+
     if pack.CertSize == 0 {
         return "no GPG public key", nil
     } else {

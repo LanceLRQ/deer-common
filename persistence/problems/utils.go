@@ -67,10 +67,12 @@ func WalkZip(zipArchive *zip.ReadCloser, walkFunc func(file *zip.File) error) er
 }
 
 // 搜索zip内的文件并打开(精确匹配)
-func FindInZip(zipArchive *zip.ReadCloser, fileName string) (*io.ReadCloser, error) {
+func FindInZip(zipArchive *zip.ReadCloser, fileName string) (*io.ReadCloser, *zip.File, error) {
     var fileResult io.ReadCloser
     finded := false
+    var fileInfo *zip.File
     err := WalkZip(zipArchive, func(file *zip.File) error {
+        fileInfo = file
         if fileName == file.Name {
             finded = true
             var err error
@@ -82,7 +84,7 @@ func FindInZip(zipArchive *zip.ReadCloser, fileName string) (*io.ReadCloser, err
         return nil
     })
     if !finded {
-        return nil, NewFileNotFoundError(fileName)
+        return nil, nil, NewFileNotFoundError(fileName)
     }
-    return &fileResult, err
+    return &fileResult, fileInfo, err
 }
