@@ -13,6 +13,7 @@ import (
     "io"
     "io/ioutil"
     "log"
+    "path"
     "reflect"
 )
 
@@ -130,7 +131,7 @@ func ReadProblemInfoZip(problemFile string, unpack, validate bool, workDir strin
         }
     }
 
-    return &config, "", nil
+    return &config, path.Join(workDir, "problem.json"), nil
 }
 
 // 读取题目携带的GPG信息(ZIP)
