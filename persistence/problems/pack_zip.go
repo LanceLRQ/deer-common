@@ -2,8 +2,8 @@ package problems
 
 import (
     "archive/zip"
-    "fmt"
     "github.com/LanceLRQ/deer-common/persistence"
+    "github.com/pkg/errors"
     "io"
     "os"
     "path"
@@ -15,7 +15,7 @@ import (
 func packZipFile (rootPath string, targetPath string) error {
     fout, err := os.Create(targetPath)
     if err != nil {
-        return fmt.Errorf("create problem package file error: %s", err.Error())
+        return errors.Errorf("create problem package file error: %s", err.Error())
     }
     defer fout.Close()
 
@@ -68,7 +68,7 @@ func PackProblemsAsZip(options *persistence.ProblemPackageOptions) error {
     // 这边没法支持所有内容的校验了，只能给config签名。
     if options.DigitalSign {
         if options.DigitalPEM.PublicKey == nil || options.DigitalPEM.PrivateKey == nil {
-            return fmt.Errorf("digital sign need public key and private key")
+            return errors.Errorf("digital sign need public key and private key")
         }
     }
 

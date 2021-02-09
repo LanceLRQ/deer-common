@@ -9,9 +9,8 @@ import (
     "crypto/sha256"
     "crypto/x509"
     "encoding/pem"
-    "errors"
-    "fmt"
     "github.com/howeyc/gopass"
+    "github.com/pkg/errors"
     uuid "github.com/satori/go.uuid"
     "golang.org/x/crypto/openpgp"
     "golang.org/x/crypto/openpgp/armor"
@@ -196,7 +195,7 @@ func GetPublicKeyArmorBytes(entity *openpgp.Entity) ([]byte, error) {
 
 func GetArmorPublicKey(gpgKeyFile string, passphrase []byte) (*DigitalSignPEM, error) {
     if gpgKeyFile == "" {
-        return nil, fmt.Errorf("please set GPG key file path")
+        return nil, errors.Errorf("please set GPG key file path")
     }
     // Open key
     keyRingReader, err := os.Open(gpgKeyFile)
@@ -209,7 +208,7 @@ func GetArmorPublicKey(gpgKeyFile string, passphrase []byte) (*DigitalSignPEM, e
         return nil, err
     }
     if len(elist) < 1 {
-        return nil, fmt.Errorf("file has no GPG key")
+        return nil, errors.Errorf("file has no GPG key")
     }
     gpgKey := elist[0].PrivateKey
     if gpgKey.Encrypted {

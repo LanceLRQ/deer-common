@@ -4,11 +4,11 @@ import (
     "bytes"
     "compress/gzip"
     "encoding/binary"
-    "fmt"
     "github.com/LanceLRQ/deer-common/constants"
     "github.com/LanceLRQ/deer-common/persistence"
     commonStructs "github.com/LanceLRQ/deer-common/structs"
     "github.com/LanceLRQ/deer-common/utils"
+    "github.com/pkg/errors"
     uuid "github.com/satori/go.uuid"
     "io"
     "io/ioutil"
@@ -26,16 +26,16 @@ func readAndWriteToTempFile(writer io.Writer, fileName string, workDir string) e
     binary.BigEndian.PutUint16(buf16, constants.JudgeBodyPackageMagicCode)
     binary.BigEndian.PutUint32(buf32, uint32(len(body)))
     if _, err := writer.Write(buf16); err != nil {
-        return fmt.Errorf("write temp file error: %s", err.Error())
+        return errors.Errorf("write temp file error: %s", err.Error())
     }
     if _, err := writer.Write(buf32); err != nil {
-        return fmt.Errorf("write temp file error: %s", err.Error())
+        return errors.Errorf("write temp file error: %s", err.Error())
     }
     if _, err := writer.Write([]byte(fileName + "\n")); err != nil {
-        return fmt.Errorf("write temp file error: %s", err.Error())
+        return errors.Errorf("write temp file error: %s", err.Error())
     }
     if _, err := writer.Write(body); err != nil {
-        return fmt.Errorf("write temp file error: %s", err.Error())
+        return errors.Errorf("write temp file error: %s", err.Error())
     }
     return nil
 }
@@ -49,7 +49,7 @@ func mergeResultBinary(
     var testCaseWriter io.Writer
     tmpFile, err := os.OpenFile(tmpFilePath, os.O_CREATE|os.O_WRONLY, 0644)
     if err != nil {
-        return "", fmt.Errorf("create temp file error: %s", err.Error())
+        return "", errors.Errorf("create temp file error: %s", err.Error())
     }
     defer tmpFile.Close()
     if options.CompressorType == 1 { // GZIP
@@ -83,43 +83,43 @@ func writeFileHeaderAndResult(writer io.Writer, pack JudgeResultPackage) error {
     // magic
     binary.BigEndian.PutUint16(buf16, constants.JudgeResultMagicCode)
     if _, err := writer.Write(buf16); err != nil {
-        return fmt.Errorf("write result file error: %s", err.Error())
+        return errors.Errorf("write result file error: %s", err.Error())
     }
 
     // Version
     buf8[0] = pack.Version
     if _, err := writer.Write(buf8); err != nil {
-        return fmt.Errorf("write result file error: %s", err.Error())
+        return errors.Errorf("write result file error: %s", err.Error())
     }
 
     // CompressorType
     buf8[0] = pack.CompressorType
     if _, err := writer.Write(buf8); err != nil {
-        return fmt.Errorf("write result file error: %s", err.Error())
+        return errors.Errorf("write result file error: %s", err.Error())
     }
 
     // ResultSize
     binary.BigEndian.PutUint32(buf32, pack.ResultSize)
     if _, err := writer.Write(buf32); err != nil {
-        return fmt.Errorf("write result file error: %s", err.Error())
+        return errors.Errorf("write result file error: %s", err.Error())
     }
 
     // BodySize
     binary.BigEndian.PutUint32(buf32, pack.BodySize)
     if _, err := writer.Write(buf32); err != nil {
-        return fmt.Errorf("write result file error: %s", err.Error())
+        return errors.Errorf("write result file error: %s", err.Error())
     }
 
     // CertSize
     binary.BigEndian.PutUint16(buf16, pack.CertSize)
     if _, err := writer.Write(buf16); err != nil {
-        return fmt.Errorf("write result file error: %s", err.Error())
+        return errors.Errorf("write result file error: %s", err.Error())
     }
 
     // Certificate
     if pack.CertSize > 0 {
         if _, err := writer.Write(pack.Certificate); err != nil {
-            return fmt.Errorf("write result file error: %s", err.Error())
+            return errors.Errorf("write result file error: %s", err.Error())
         }
     }
 
@@ -132,13 +132,13 @@ func PersistentJudgeResult(
 ) error {
     fout, err := os.Create(options.OutFile)
     if err != nil {
-        return fmt.Errorf("create result file error: %s", err.Error())
+        return errors.Errorf("create result file error: %s", err.Error())
     }
     defer fout.Close()
 
     if options.DigitalSign {
         if options.DigitalPEM.PublicKey == nil || options.DigitalPEM.PrivateKey == nil {
-            return fmt.Errorf("digital sign need public key and private key")
+            return errors.Errorf("digital sign need public key and private key")
         }
     }
 
@@ -201,17 +201,17 @@ func PersistentJudgeResult(
     // SignSize
     binary.BigEndian.PutUint16(buf16, signSize)
     if _, err := fout.Write(buf16); err != nil {
-        return fmt.Errorf("write result file error: %s", err.Error())
+        return errors.Errorf("write result file error: %s", err.Error())
     }
     // Signature
     if _, err := fout.Write(hash); err != nil {
-        return fmt.Errorf("write result file error: %s", err.Error())
+        return errors.Errorf("write result file error: %s", err.Error())
     }
 
     // Write Result and Body
     // 要注意先写入result，再写body，方便后续校验的时候直接顺序读取
     if _, err := fout.Write(pack.Result); err != nil {
-        return fmt.Errorf("write result file error: %s", err.Error())
+        return errors.Errorf("write result file error: %s", err.Error())
     }
     fBody, err = os.Open(bodyFile)
     if err != nil {
@@ -220,7 +220,7 @@ func PersistentJudgeResult(
     defer fBody.Close()
     // Copy Body to fout
     if _, err := io.Copy(fout, fBody); err != nil {
-        return fmt.Errorf("write result file error: %s", err.Error())
+        return errors.Errorf("write result file error: %s", err.Error())
     }
     // Clean
     _ = os.Remove(bodyFile)

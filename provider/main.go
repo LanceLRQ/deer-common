@@ -11,6 +11,7 @@ import (
     "fmt"
     "github.com/LanceLRQ/deer-common/structs"
     "github.com/LanceLRQ/deer-common/utils"
+    "github.com/pkg/errors"
     "github.com/satori/go.uuid"
     "io/ioutil"
     "os"
@@ -155,7 +156,7 @@ func (prov *CodeCompileProvider) checkWorkDir() error {
     _, err := os.Stat(prov.workDir)
     if err != nil {
         if os.IsNotExist(err) {
-            return fmt.Errorf("work dir not exists")
+            return errors.Errorf("work dir not exists")
         }
         return err
     }

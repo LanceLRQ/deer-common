@@ -5,10 +5,10 @@ import (
     "bufio"
     "bytes"
     "crypto/rsa"
-    "fmt"
     "github.com/LanceLRQ/deer-common/persistence"
     commonStructs "github.com/LanceLRQ/deer-common/structs"
     "github.com/LanceLRQ/deer-common/utils"
+    "github.com/pkg/errors"
     "golang.org/x/crypto/openpgp"
     "io"
     "io/ioutil"
@@ -62,7 +62,7 @@ func validateProblemPackageZip(zipArchive *zip.ReadCloser) (bool, error) {
             return false, err
         }
         if len(elist) < 1 {
-            return false, fmt.Errorf("GPG key error")
+            return false, errors.Errorf("GPG key error")
         }
         publicKey := elist[0].PrimaryKey.PublicKey.(*rsa.PublicKey)
         err = persistence.RSA2048Verify(hash, signature, publicKey)
@@ -80,9 +80,9 @@ func doProblemPackageValidationZip (zipArchive *zip.ReadCloser, validate bool) e
     var errmsg error
     if !ok || err != nil {
         if err != nil {
-            errmsg = fmt.Errorf("validate package hash error: %s", err.Error())
+            errmsg = errors.Errorf("validate package hash error: %s", err.Error())
         }
-        errmsg = fmt.Errorf("validate package hash error")
+        errmsg = errors.Errorf("validate package hash error")
     }
     // 如果出错并且现在必须要验证错误，则抛出
     if errmsg != nil {
@@ -101,7 +101,7 @@ func ReadProblemInfoZip(problemFile string, unpack, validate bool, workDir strin
     // 打开文件
     zipReader, err := zip.OpenReader(problemFile)
     if err != nil {
-       return nil, "", fmt.Errorf("open file (%s) error: %s", problemFile, err.Error())
+       return nil, "", errors.Errorf("open file (%s) error: %s", problemFile, err.Error())
     }
     defer zipReader.Close()
 
@@ -138,14 +138,14 @@ func ReadProblemInfoZip(problemFile string, unpack, validate bool, workDir strin
 func ReadProblemGPGInfoZip(problemFile string) (string, error) {
     zipReader, err := zip.OpenReader(problemFile)
     if err != nil {
-        return "", fmt.Errorf("open file (%s) error: %s", problemFile, err.Error())
+        return "", errors.Errorf("open file (%s) error: %s", problemFile, err.Error())
     }
     defer zipReader.Close()
 
     file, _, err := FindInZip(zipReader, ".gpg")
     if err != nil {
         if IsFileNotFoundError(err) {
-            return "", fmt.Errorf("no GPG public key")
+            return "", errors.Errorf("no GPG public key")
         }
         return "", err
     }
@@ -155,7 +155,7 @@ func ReadProblemGPGInfoZip(problemFile string) (string, error) {
         return "", err
     }
     if len(elist) < 1 {
-        return "", fmt.Errorf("GPG key error")
+        return "", errors.Errorf("GPG key error")
     }
     rel := ""
     for _, identify := range elist[0].Identities {

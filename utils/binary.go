@@ -4,9 +4,9 @@ import (
     "bytes"
     "context"
     "encoding/binary"
-    "fmt"
     "github.com/LanceLRQ/deer-common/constants"
     "github.com/LanceLRQ/deer-common/structs"
+    "github.com/pkg/errors"
     "os"
     "os/exec"
     "path"
@@ -19,7 +19,7 @@ import (
 func IsExecutableFile(filePath string) (bool, error) {
     fp, err := os.OpenFile(filePath, os.O_RDONLY|syscall.O_NONBLOCK, 0)
     if err != nil {
-        return false, fmt.Errorf("open file error")
+        return false, errors.Errorf("open file error")
     }
     defer fp.Close()
 
@@ -54,7 +54,7 @@ func GetCompiledBinaryFileAbsPath(typeName, moduleName, configDir string) (strin
 func ParseGeneratorScript(script string) (string, []string, error) {
     vals := strings.Split(script, " ")
     if len(vals) <= 1 {
-        return "", nil, fmt.Errorf("generator calling script error")
+        return "", nil, errors.Errorf("generator calling script error")
     }
     return vals[0], vals[1:], nil
 }
@@ -145,7 +145,7 @@ func CallGenerator(ctx context.Context, tc *structs.TestCase, configDir string) 
     if rel.Success {
         return []byte(rel.Stdout), nil
     } else {
-        return nil, fmt.Errorf("generator error")
+        return nil, errors.Errorf("generator error")
     }
 }
 
@@ -154,7 +154,7 @@ func CallGenerator(ctx context.Context, tc *structs.TestCase, configDir string) 
 func IsZipFile(filePath string) (bool, error) {
     fp, err := os.OpenFile(filePath, os.O_RDONLY|syscall.O_NONBLOCK, 0)
     if err != nil {
-        return false, fmt.Errorf("open file error")
+        return false, errors.Errorf("open file error")
     }
     defer fp.Close()
 
@@ -171,7 +171,7 @@ func IsZipFile(filePath string) (bool, error) {
 func IsProblemPackage(filePath string) (bool, error) {
     fp, err := os.OpenFile(filePath, os.O_RDONLY|syscall.O_NONBLOCK, 0)
     if err != nil {
-        return false, fmt.Errorf("open file error")
+        return false, errors.Errorf("open file error")
     }
     defer fp.Close()
 

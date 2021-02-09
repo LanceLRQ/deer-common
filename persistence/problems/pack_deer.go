@@ -4,11 +4,11 @@ import (
     "archive/zip"
     "bytes"
     "encoding/binary"
-    "fmt"
     "github.com/LanceLRQ/deer-common/constants"
     "github.com/LanceLRQ/deer-common/persistence"
     commonStructs "github.com/LanceLRQ/deer-common/structs"
     "github.com/LanceLRQ/deer-common/utils"
+    "github.com/pkg/errors"
     uuid "github.com/satori/go.uuid"
     "io"
     "os"
@@ -82,43 +82,43 @@ func writeFileHeader(writer io.Writer, pack ProblemPackage) error {
     // magic
     binary.BigEndian.PutUint16(buf16, constants.ProblemPackageMagicCode)
     if _, err := writer.Write(buf16); err != nil {
-        return fmt.Errorf("write problem file error: %s", err.Error())
+        return errors.Errorf("write problem file error: %s", err.Error())
     }
 
     // Version
     binary.BigEndian.PutUint16(buf16, pack.Version)
     if _, err := writer.Write(buf16); err != nil {
-        return fmt.Errorf("write problem file error: %s", err.Error())
+        return errors.Errorf("write problem file error: %s", err.Error())
     }
 
     // Commit Version
     binary.BigEndian.PutUint32(buf32, pack.CommitVersion)
     if _, err := writer.Write(buf32); err != nil {
-        return fmt.Errorf("write problem file error: %s", err.Error())
+        return errors.Errorf("write problem file error: %s", err.Error())
     }
 
     // ConfigSize
     binary.BigEndian.PutUint32(buf32, pack.ConfigSize)
     if _, err := writer.Write(buf32); err != nil {
-        return fmt.Errorf("write problem file error: %s", err.Error())
+        return errors.Errorf("write problem file error: %s", err.Error())
     }
 
     // BodySize
     binary.BigEndian.PutUint32(buf32, pack.BodySize)
     if _, err := writer.Write(buf32); err != nil {
-        return fmt.Errorf("write problem file error: %s", err.Error())
+        return errors.Errorf("write problem file error: %s", err.Error())
     }
 
     // CertSize
     binary.BigEndian.PutUint16(buf16, pack.CertSize)
     if _, err := writer.Write(buf16); err != nil {
-        return fmt.Errorf("write problem file error: %s", err.Error())
+        return errors.Errorf("write problem file error: %s", err.Error())
     }
 
     // Certificate
     if pack.CertSize > 0 {
         if _, err := writer.Write(pack.Certificate); err != nil {
-            return fmt.Errorf("write problem file error: %s", err.Error())
+            return errors.Errorf("write problem file error: %s", err.Error())
         }
     }
 
@@ -133,13 +133,13 @@ func PackProblems(
 
     if options.DigitalSign {
         if options.DigitalPEM.PublicKey == nil || options.DigitalPEM.PrivateKey == nil {
-            return fmt.Errorf("digital sign need public key and private key")
+            return errors.Errorf("digital sign need public key and private key")
         }
     }
 
     fout, err := os.Create(options.OutFile)
     if err != nil {
-        return fmt.Errorf("create problem package file error: %s", err.Error())
+        return errors.Errorf("create problem package file error: %s", err.Error())
     }
     defer fout.Close()
 
@@ -203,17 +203,17 @@ func PackProblems(
     // SignSize
     binary.BigEndian.PutUint16(buf16, signSize)
     if _, err := fout.Write(buf16); err != nil {
-        return fmt.Errorf("write problem file error: %s", err.Error())
+        return errors.Errorf("write problem file error: %s", err.Error())
     }
     // Signature
     if _, err := fout.Write(hash); err != nil {
-        return fmt.Errorf("write problem file error: %s", err.Error())
+        return errors.Errorf("write problem file error: %s", err.Error())
     }
 
     // Write configs and Body
     // 要注意先写入configs，再写body，方便后续校验的时候直接顺序读取
     if _, err := fout.Write(pack.Configs); err != nil {
-        return fmt.Errorf("write problem file error: %s", err.Error())
+        return errors.Errorf("write problem file error: %s", err.Error())
     }
     fBody, err = os.Open(bodyFile)
     if err != nil {
@@ -222,7 +222,7 @@ func PackProblems(
     defer fBody.Close()
     // Copy Body to fout
     if _, err := io.Copy(fout, fBody); err != nil {
-        return fmt.Errorf("write problem file error: %s", err.Error())
+        return errors.Errorf("write problem file error: %s", err.Error())
     }
 
     // Clean

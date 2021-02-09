@@ -1,7 +1,7 @@
 package utils
 
 import (
-    "fmt"
+    "github.com/pkg/errors"
     "os"
     "path"
 )
@@ -10,7 +10,7 @@ import (
 func GetSessionDir(workDir string, sessionId string) (string, error) {
     _, err := os.Stat(workDir)
     if os.IsNotExist(err) {
-        return "", fmt.Errorf("work dir (%s) not exists", workDir)
+        return "", errors.Errorf("work dir (%s) not exists", workDir)
     } else if err != nil {
         return "", err
     }
@@ -21,7 +21,7 @@ func GetSessionDir(workDir string, sessionId string) (string, error) {
     }
     err = os.Mkdir(sessionDir, 0755)
     if err != nil {
-        return "", fmt.Errorf("create session dir error: %s", err.Error())
+        return "", errors.Errorf("create session dir error: %s", err.Error())
     }
     return sessionDir, nil
 }
