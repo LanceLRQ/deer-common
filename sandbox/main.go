@@ -59,25 +59,24 @@ import (
 //    return **(**uintptr)(unsafe.Pointer(&f))
 //}
 
-func test() {
+func test(i int) {
     exeArgs := &syscall.ProcAttr{
         Env:   os.Environ(),
         //Files: []uintptr { os.Stdin.Fd(),  os.Stdout.Fd(),  os.Stderr.Fd()  },
         Sys:   nil,
     }
-    _, err := forkexec.ForkExec("./test", nil, exeArgs)
+    pid, err := forkexec.ForkExec("./test", nil, exeArgs)
     if err != nil {
         panic(err)
     }
-    //fmt.Println(pid)
+    fmt.Println(pid, i)
 }
 
 func main() {
-    for i := 0; i < 100; i++ {
-       go test()
-       fmt.Println(i)
+    for i := 0; i < 1000; i++ {
+       go test(i)
     }
     //go test()
     fmt.Println("AA")
-    time.Sleep(1 * time.Second)
+    time.Sleep(100 * time.Second)
 }
