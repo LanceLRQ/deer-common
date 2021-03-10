@@ -8,7 +8,7 @@ import "syscall"
 // 获取管道数据
 func GetPipe() ([]uintptr, error) {
     var pipe = []int{0, 0}
-    err := Pipe2(pipe, syscall.O_NONBLOCK)
+    err := Pipe2(pipe, syscall.O_CLOEXEC)
     if err != nil {
         return nil, err
     }

@@ -2,9 +2,9 @@
 
 这是一个基于Go语言自带的syscall库和os库里搬运出来进程调度工具，未来它的目标是实现一个更加复杂的沙箱。
 
-本工具基于最新的Go 1.16源代码提取并编译，请升级到指定版本以免无法编译。
+本工具基于最新的Go 1.16源代码提取并编译，经测试在1.14版本及以上可以编译通过，其他低版本没有测试。
 
-本工具只在Linux(amd64)和MacOS(amd64,arm64)操作系统下测试编译通过。
+本工具**仅在**Linux(amd64)和MacOS(amd64,arm64)操作系统下测试编译并通过，请注意平台兼容性。
 
 ## 官方文档
 - `forkexec` 对应 `syscall` [https://pkg.go.dev/syscall](https://pkg.go.dev/syscall)
