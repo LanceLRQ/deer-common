@@ -421,7 +421,7 @@ func forkAndExecInChild1(argv0 *byte, argv, envv []*byte, chroot, dir *byte, att
     if pipe < nextfd {
         _, _, err1 = syscall.RawSyscall(syscall.SYS_DUP3, uintptr(pipe), uintptr(nextfd), syscall.O_CLOEXEC)
         if err1 == syscall.ENOSYS {
-            _, _, err1 = syscall.RawSyscall(syscall.SYS_DUP, uintptr(pipe), uintptr(nextfd), 0)
+            _, _, err1 = syscall.RawSyscall(syscall.SYS_DUP2, uintptr(pipe), uintptr(nextfd), 0)
             if err1 != 0 {
                 goto childerror
             }
@@ -439,7 +439,7 @@ func forkAndExecInChild1(argv0 *byte, argv, envv []*byte, chroot, dir *byte, att
             }
             _, _, err1 = syscall.RawSyscall(syscall.SYS_DUP3, uintptr(fd[i]), uintptr(nextfd), syscall.O_CLOEXEC)
             if err1 == syscall.ENOSYS {
-                _, _, err1 = syscall.RawSyscall(syscall.SYS_DUP, uintptr(fd[i]), uintptr(nextfd), 0)
+                _, _, err1 = syscall.RawSyscall(syscall.SYS_DUP2, uintptr(fd[i]), uintptr(nextfd), 0)
                 if err1 != 0 {
                     goto childerror
                 }
@@ -469,7 +469,7 @@ func forkAndExecInChild1(argv0 *byte, argv, envv []*byte, chroot, dir *byte, att
         }
         // The new fd is created NOT close-on-exec,
         // which is exactly what we want.
-        _, _, err1 = syscall.RawSyscall(syscall.SYS_DUP, uintptr(fd[i]), uintptr(i), 0)
+        _, _, err1 = syscall.RawSyscall(syscall.SYS_DUP2, uintptr(fd[i]), uintptr(i), 0)
         if err1 != 0 {
             goto childerror
         }
