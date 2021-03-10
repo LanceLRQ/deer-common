@@ -7,25 +7,6 @@
 .
 ├── LICENSE
 ├── README.md
-├── constants
-├── docs
-├── errors
-├── go.mod
-├── go.sum
-├── logger
-├── main.go
-├── persistence
-├── provider
-├── sandbox
-├── structs
-└── utils
-
-9 directories, 5 files
-
- ~/github/deer-common  main !1  tree -L 2                                                  ✔  15:49:13 
-.
-├── LICENSE
-├── README.md
 ├── constants             常量库
 │   ├── executor.go         判题机的常量定义，如判题结果、语言等
 │   ├── persistence.go      持久化模块的文件魔数常量
