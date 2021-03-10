@@ -61,6 +61,7 @@ type SysProcAttr struct {
     // users this should be set to false for mappings work.
     GidMappingsEnableSetgroups bool
     AmbientCaps                []uintptr // Ambient capabilities (Linux only)
+    Rlimit                     ExecRLimit  // Set child's rlimit.
 }
 
 const _LINUX_CAPABILITY_VERSION_3 = 0x20080522
@@ -130,6 +131,9 @@ func forkAndExecInChild1(argv0 *byte, argv, envv []*byte, chroot, dir *byte, att
         puid, psetgroups, pgid    []byte
         uidmap, setgroups, gidmap []byte
     )
+
+    // Load rlimit options
+    rlimitOptions := GetRlimitOptions(&sys.Rlimit)
 
     if sys.UidMappings != nil {
         puid = []byte("/proc/self/uid_map\000")
@@ -500,6 +504,23 @@ func forkAndExecInChild1(argv0 *byte, argv, envv []*byte, chroot, dir *byte, att
     // setting up after the fork. See issue #21428.
     if sys.Ptrace {
         _, _, err1 = syscall.RawSyscall(syscall.SYS_PTRACE, uintptr(syscall.PTRACE_TRACEME), 0, 0)
+        if err1 != 0 {
+            goto childerror
+        }
+    }
+
+    // Set resource limitations
+    for _, rlimit := range rlimitOptions.Rlimits {
+        if !rlimit.Enable { continue }
+        _, _, err1 := syscall.RawSyscall(syscall.SYS_SETRLIMIT, uintptr(rlimit.Which), uintptr(unsafe.Pointer(&rlimit.RLim)), 0)
+        if err1 != 0 {
+            goto childerror
+        }
+    }
+
+    // Set real time limitation
+    if sys.Rlimit.RealTimeLimit > 0 {
+        _, _, err1 = syscall.RawSyscall(syscall.SYS_SETITIMER, ITIMER_REAL, uintptr(unsafe.Pointer(&rlimitOptions.ITimerValue)), 0)
         if err1 != 0 {
             goto childerror
         }

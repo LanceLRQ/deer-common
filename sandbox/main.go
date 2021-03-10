@@ -63,8 +63,8 @@ func test(i int) {
     p, err := process.StartProcess("./test", nil, &process.ProcAttr{
         Env:   os.Environ(),
         Files: []*os.File { os.Stdin,  os.Stdout,  os.Stderr  },
-        Sys: &forkexec.SysProcAttr{
-            Rlimit: forkexec.ForkExecRLimit{
+        Sys: &forkexec.SysProcAttr {
+            Rlimit: forkexec.ExecRLimit {
                 TimeLimit: 1000,
                 RealTimeLimit: 2000,
                 MemoryLimit: 128000,
