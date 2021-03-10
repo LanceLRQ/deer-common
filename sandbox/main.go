@@ -2,10 +2,8 @@ package main
 
 import (
     "fmt"
-    "github.com/LanceLRQ/deer-common/sandbox/forkexec"
+    "github.com/LanceLRQ/deer-common/sandbox/process"
     "os"
-    "syscall"
-    "time"
 )
 
 //
@@ -59,24 +57,26 @@ import (
 //    return **(**uintptr)(unsafe.Pointer(&f))
 //}
 
-func test(i int) {
-    exeArgs := &syscall.ProcAttr{
+func test() {
+    p, err := process.StartProcess("./test", nil, &process.ProcAttr{
         Env:   os.Environ(),
-        //Files: []uintptr { os.Stdin.Fd(),  os.Stdout.Fd(),  os.Stderr.Fd()  },
-        Sys:   nil,
-    }
-    pid, err := forkexec.ForkExec("./test", nil, exeArgs)
+        Files: []*os.File { os.Stdin,  os.Stdout,  os.Stderr  },
+    })
     if err != nil {
         panic(err)
     }
-    fmt.Println(pid, i)
+    ps, err := p.Wait()
+    if err != nil {
+        panic(err)
+    }
+    fmt.Printf("\n\nExitCode: %d\n", ps.ExitCode())
 }
 
 func main() {
-    for i := 0; i < 1000; i++ {
-       go test(i)
-    }
-    //go test()
-    fmt.Println("AA")
-    time.Sleep(100 * time.Second)
+    //for i := 0; i < 1000; i++ {
+    //   go test(i)
+    //}
+    test()
+    //fmt.Println("AA")
+    //time.Sleep(100 * time.Second)
 }

@@ -15,10 +15,19 @@ import (
     "unsafe"
 )
 
-var zeroProcAttr syscall.ProcAttr
-var zeroSysProcAttr syscall.SysProcAttr
+// ProcAttr holds attributes that will be applied to a new process started
+// by StartProcess.
+type ProcAttr struct {
+    Dir   string    // Current working directory.
+    Env   []string  // Environment.
+    Files []uintptr // File descriptors.
+    Sys   *SysProcAttr
+}
 
-func forkExec(argv0 string, argv []string, attr *syscall.ProcAttr) (pid int, err error) {
+var zeroProcAttr ProcAttr
+var zeroSysProcAttr SysProcAttr
+
+func forkExec(argv0 string, argv []string, attr *ProcAttr) (pid int, err error) {
     var p [2]int
     var n int
     var err1 syscall.Errno
@@ -134,12 +143,12 @@ error:
 }
 
 // Combination of fork and exec, careful to be thread safe.
-func ForkExec(argv0 string, argv []string, attr *syscall.ProcAttr) (pid int, err error) {
+func ForkExec(argv0 string, argv []string, attr *ProcAttr) (pid int, err error) {
     return forkExec(argv0, argv, attr)
 }
 
 // StartProcess wraps ForkExec for package os.
-func StartProcess(argv0 string, argv []string, attr *syscall.ProcAttr) (pid int, handle uintptr, err error) {
+func StartProcess(argv0 string, argv []string, attr *ProcAttr) (pid int, handle uintptr, err error) {
     pid, err = forkExec(argv0, argv, attr)
     return pid, 0, err
 }
