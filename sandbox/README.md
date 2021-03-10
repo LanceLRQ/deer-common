@@ -90,7 +90,7 @@ func program(stdin, stdout uintptr) {
 
 func judgement(stdin, stdout uintptr) {
     p, err := process.StartProcess("./judgement", []string {
-        "./judger",
+        "./judgement",
         "./0.in",
         "./0.out",
         "./0.err",
@@ -129,9 +129,9 @@ func run() {
     if err != nil {
         panic(err)
     }
-    
-    go target(fdtarget[0], fdjudge[1])
-    go judger(fdjudger[0], fdjudge[1])
+
+    go program(fdtarget[0], fdjudge[1])
+    go judgement(fdjudge[0], fdtarget[1])
 
     // 这里演示，只是简单的睡一下，一般会用管道去监听协程，并注意进行超时处理。
     time.Sleep(10 * time.Second)
