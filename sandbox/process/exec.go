@@ -7,7 +7,6 @@ package process
 import (
 	"errors"
 	"github.com/LanceLRQ/deer-common/sandbox/forkexec"
-	"os"
 	"runtime"
 	"sync"
 	"sync/atomic"
@@ -55,7 +54,7 @@ type ProcAttr struct {
 	// standard error. An implementation may support additional entries,
 	// depending on the underlying operating system. A nil entry corresponds
 	// to that file being closed when the process starts.
-	Files []*os.File
+	Files []interface{}
 
 	// Operating system-specific process creation attributes.
 	// Note that setting this field means that your program

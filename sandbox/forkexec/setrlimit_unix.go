@@ -34,11 +34,11 @@ type TimeVal struct {
 }
 
 type ExecRLimit struct {
-    TimeLimit     int
-    RealTimeLimit int
-    MemoryLimit   int
-    FileSizeLimit int
-    StackLimit    int
+    TimeLimit     int           // 时间限制 (ms)
+    RealTimeLimit int           // 真实时间限制 (ms, 触发SIGALRM)
+    MemoryLimit   int           // 内存限制 (KB)
+    FileSizeLimit int           // 文件读写限制 (B)
+    StackLimit    int           // 栈大小限制 (KB，0表示用内存限制的值，-1表示不限制)
 }
 
 type RlimitOptions struct {
@@ -46,6 +46,7 @@ type RlimitOptions struct {
     ITimerValue ITimerVal
 }
 
+// 解析ExecRLimit结构体并获取setrlimit操作需要的信息
 func GetRlimitOptions (sysRlimit *ExecRLimit) *RlimitOptions {
     // Make stack limit
     stackLimit := uint64(sysRlimit.StackLimit)
@@ -90,7 +91,7 @@ func GetRlimitOptions (sysRlimit *ExecRLimit) *RlimitOptions {
             // Set stack limit
             {
                 Which: syscall.RLIMIT_STACK,
-                Enable: stackLimit > 0,
+                Enable: stackLimit > 0 && sysRlimit.StackLimit >= 0,
                 RLim: syscall.Rlimit{
                     Cur: stackLimit,
                     Max: stackLimit,

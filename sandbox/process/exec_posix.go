@@ -9,6 +9,7 @@ package process
 import (
 	"github.com/LanceLRQ/deer-common/sandbox/forkexec"
 	"github.com/LanceLRQ/deer-common/sandbox/process/execenv"
+	"github.com/pkg/errors"
 	"os"
 	"runtime"
 	"syscall"
@@ -49,7 +50,13 @@ func startProcess(name string, argv []string, attr *ProcAttr) (p *Process, err e
 	}
 	sysattr.Files = make([]uintptr, 0, len(attr.Files))
 	for _, f := range attr.Files {
-		sysattr.Files = append(sysattr.Files, f.Fd())
+		if fi, ok := f.(*os.File); ok {
+			sysattr.Files = append(sysattr.Files, fi.Fd())
+		} else if fd, ok := f.(uintptr); ok {
+			sysattr.Files = append(sysattr.Files, fd)
+		} else {
+			return nil, errors.Errorf("Files only allow *os.File and uintptr(file descriptor)")
+		}
 	}
 
 	pid, h, e := forkexec.StartProcess(name, argv, sysattr)
