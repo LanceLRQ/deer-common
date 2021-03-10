@@ -7,9 +7,12 @@
 package forkexec
 
 import (
+    "math"
     "syscall"
     "unsafe"
 )
+
+const DarwinSafeStackSize = 65500
 
 
 // Find the entry point for f. See comments in runtime/proc.go for the
@@ -41,6 +44,7 @@ type SysProcAttr struct {
     // number in the parent process.
     Foreground bool
     Pgid       int // Child's process group ID if Setpgid.
+    Rlimit     ForkExecRLimit  // Set child's rlimit.
 }
 
 // Fork, dup fd onto 0..len(fd), and exec(argv0, argvv, envv) in child.
@@ -62,6 +66,74 @@ func forkAndExecInChild(argv0 *byte, argv, envv []*byte, chroot, dir *byte, attr
         nextfd int
         i      int
     )
+
+    // Make stack limit
+    stackLimit := uint64(sys.Rlimit.StackLimit)
+    if stackLimit <= 0 {
+        stackLimit = uint64(sys.Rlimit.MemoryLimit * 1024)
+    }
+    if sys.Rlimit.MemoryLimit > DarwinSafeStackSize { // WTF?! >= 65mb caused an operation not permitted!
+        stackLimit = uint64(DarwinSafeStackSize * 1024)
+    }
+
+    // Rlimit defination
+    rlimits := []RLimit{
+        // Set time limit: RLIMIT_CPU
+        {
+            Which: syscall.RLIMIT_CPU,
+            Enable: sys.Rlimit.TimeLimit > 0,
+            RLim: syscall.Rlimit{
+                Cur: uint64(math.Ceil(float64(sys.Rlimit.TimeLimit) / 1000.0)),
+                Max: uint64(math.Ceil(float64(sys.Rlimit.TimeLimit) / 1000.0)),
+            },
+        },
+        // Set memory limit: RLIMIT_DATA
+        {
+            Which: syscall.RLIMIT_DATA,
+            Enable: sys.Rlimit.MemoryLimit > 0,
+            RLim: syscall.Rlimit{
+                Cur: uint64(sys.Rlimit.MemoryLimit * 1024),
+                Max: uint64(sys.Rlimit.MemoryLimit * 1024),
+            },
+        },
+        // Set memory limit: RLIMIT_AS
+        {
+            Which: syscall.RLIMIT_AS,
+            Enable: sys.Rlimit.MemoryLimit > 0,
+            RLim: syscall.Rlimit{
+                Cur: uint64(sys.Rlimit.MemoryLimit * 1024 * 2),
+                Max: uint64(sys.Rlimit.MemoryLimit*1024*2 + 1024),
+            },
+        },
+        // Set stack limit
+        {
+            Which: syscall.RLIMIT_STACK,
+            Enable: stackLimit > 0,
+            RLim: syscall.Rlimit{
+                Cur: stackLimit,
+                Max: stackLimit,
+            },
+        },
+        // Set file size limit: RLIMIT_FSIZE
+        {
+            Which: syscall.RLIMIT_FSIZE,
+            Enable: sys.Rlimit.FileSizeLimit > 0,
+            RLim: syscall.Rlimit{
+                Cur: uint64(sys.Rlimit.FileSizeLimit),
+                Max: uint64(sys.Rlimit.FileSizeLimit),
+            },
+        },
+    }
+    itimerVal := ITimerVal{
+        ItInterval: TimeVal {
+            TvSec: uint64(math.Floor(float64(sys.Rlimit.RealTimeLimit) / 1000.0)),
+            TvUsec: uint64(sys.Rlimit.RealTimeLimit % 1000 * 1000),
+        },
+        ItValue: TimeVal{
+            TvSec: uint64(math.Floor(float64(sys.Rlimit.RealTimeLimit) / 1000.0)),
+            TvUsec: uint64(sys.Rlimit.RealTimeLimit % 1000 * 1000),
+        },
+    }
 
     // guard against side effects of shuffling fds below.
     // Make sure that nextfd is beyond any currently open files so
@@ -245,6 +317,23 @@ func forkAndExecInChild(argv0 *byte, argv, envv []*byte, chroot, dir *byte, attr
     // Set the controlling TTY to Ctty
     if sys.Setctty {
         _, _, err1 = rawSyscall(funcPC(libc_ioctl_trampoline), uintptr(sys.Ctty), uintptr(syscall.TIOCSCTTY), 0)
+        if err1 != 0 {
+            goto childerror
+        }
+    }
+
+    // Set resource limitations
+    for _, rlimit := range rlimits {
+        if !rlimit.Enable { continue }
+        _, _, err1 := rawSyscall(funcPC(libc_setrlimit_trampoline), uintptr(rlimit.Which), uintptr(unsafe.Pointer(&rlimit.RLim)), 0)
+        if err1 != 0 {
+            goto childerror
+        }
+    }
+
+    // Set real time limitation
+    if sys.Rlimit.RealTimeLimit > 0 {
+        _, _, err1 = syscall.RawSyscall(syscall.SYS_SETITIMER, ITIMER_REAL, uintptr(unsafe.Pointer(&itimerVal)), 0)
         if err1 != 0 {
             goto childerror
         }

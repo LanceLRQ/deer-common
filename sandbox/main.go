@@ -2,8 +2,10 @@ package main
 
 import (
     "fmt"
+    "github.com/LanceLRQ/deer-common/sandbox/forkexec"
     "github.com/LanceLRQ/deer-common/sandbox/process"
     "os"
+    "time"
 )
 
 //
@@ -57,26 +59,37 @@ import (
 //    return **(**uintptr)(unsafe.Pointer(&f))
 //}
 
-func test() {
+func test(i int) {
     p, err := process.StartProcess("./test", nil, &process.ProcAttr{
         Env:   os.Environ(),
         Files: []*os.File { os.Stdin,  os.Stdout,  os.Stderr  },
+        Sys: &forkexec.SysProcAttr{
+            Rlimit: forkexec.ForkExecRLimit{
+                TimeLimit: 1000,
+                RealTimeLimit: 2000,
+                MemoryLimit: 128000,
+                StackLimit: 65500,
+                FileSizeLimit: 1024 * 1024 * 50,
+            },
+        },
     })
     if err != nil {
         panic(err)
     }
-    ps, err := p.Wait()
+    _, err = p.Wait()
     if err != nil {
         panic(err)
     }
-    fmt.Printf("\n\nExitCode: %d\n", ps.ExitCode())
+    fmt.Println(i)
+    //ws := ps.Sys().(syscall.WaitStatus)
+    //fmt.Printf("\n\nExitCode: %d, Signal: %d\n", ps.ExitCode(), ws.Signal())
 }
 
 func main() {
-    //for i := 0; i < 1000; i++ {
-    //   go test(i)
-    //}
-    test()
+    for i := 0; i < 100; i++ {
+      test(i)
+    }
+    //test(1)
     //fmt.Println("AA")
-    //time.Sleep(100 * time.Second)
+    time.Sleep(100 * time.Second)
 }
