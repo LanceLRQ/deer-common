@@ -70,6 +70,9 @@ func libc_exit_trampoline()
 //go:linkname libc_read_trampoline syscall.libc_read_trampoline
 func libc_read_trampoline()
 
+//go:linkname libc_setrlimit_trampoline syscall.libc_setrlimit_trampoline
+func libc_setrlimit_trampoline()
+
 //go:linkname fcntl syscall.fcntl
 func fcntl(fd int, cmd int, arg int) (val int, err error)
 

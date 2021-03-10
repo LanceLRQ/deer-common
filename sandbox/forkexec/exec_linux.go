@@ -25,6 +25,44 @@ type caps struct {
 }
 
 
+type SysProcAttr struct {
+    Chroot     string      // Chroot.
+    Credential *syscall.Credential // Credential.
+    // Ptrace tells the child to call ptrace(PTRACE_TRACEME).
+    // Call runtime.LockOSThread before starting a process with this set,
+    // and don't call UnlockOSThread until done with PtraceSyscall calls.
+    Ptrace bool
+    Setsid bool // Create session.
+    // Setpgid sets the process group ID of the child to Pgid,
+    // or, if Pgid == 0, to the new child's process ID.
+    Setpgid bool
+    // Setctty sets the controlling terminal of the child to
+    // file descriptor Ctty. Ctty must be a descriptor number
+    // in the child process: an index into ProcAttr.Files.
+    // This is only meaningful if Setsid is true.
+    Setctty bool
+    Noctty  bool // Detach fd 0 from controlling terminal
+    Ctty    int  // Controlling TTY fd
+    // Foreground places the child process group in the foreground.
+    // This implies Setpgid. The Ctty field must be set to
+    // the descriptor of the controlling TTY.
+    // Unlike Setctty, in this case Ctty must be a descriptor
+    // number in the parent process.
+    Foreground   bool
+    Pgid         int            // Child's process group ID if Setpgid.
+    Pdeathsig    syscall.Signal         // Signal that the process will get when its parent dies (Linux only)
+    Cloneflags   uintptr        // Flags for clone calls (Linux only)
+    Unshareflags uintptr        // Flags for unshare calls (Linux only)
+    UidMappings  []syscall.SysProcIDMap // User ID mappings for user namespaces.
+    GidMappings  []syscall.SysProcIDMap // Group ID mappings for user namespaces.
+    // GidMappingsEnableSetgroups enabling setgroups syscall.
+    // If false, then setgroups syscall will be disabled for the child process.
+    // This parameter is no-op if GidMappings == nil. Otherwise for unprivileged
+    // users this should be set to false for mappings work.
+    GidMappingsEnableSetgroups bool
+    AmbientCaps                []uintptr // Ambient capabilities (Linux only)
+}
+
 const _LINUX_CAPABILITY_VERSION_3 = 0x20080522
 
 var (
@@ -69,7 +107,7 @@ func forkExecPipe(p []int) (err error) {
 //
 //go:noinline
 //go:norace
-func forkAndExecInChild1(argv0 *byte, argv, envv []*byte, chroot, dir *byte, attr *syscall.ProcAttr, sys *syscall.SysProcAttr, pipe int) (r1 uintptr, err1 syscall.Errno, p [2]int, locked bool) {
+func forkAndExecInChild1(argv0 *byte, argv, envv []*byte, chroot, dir *byte, attr *ProcAttr, sys *SysProcAttr, pipe int) (r1 uintptr, err1 syscall.Errno, p [2]int, locked bool) {
     // Defined in linux/prctl.h starting with Linux 4.3.
     const (
         PR_CAP_AMBIENT       = 0x2f
@@ -492,7 +530,7 @@ childerror:
 // The calls to RawSyscall are okay because they are assembly
 // functions that do not grow the stack.
 //go:norace
-func forkAndExecInChild(argv0 *byte, argv, envv []*byte, chroot, dir *byte, attr *syscall.ProcAttr, sys *syscall.SysProcAttr, pipe int) (pid int, err syscall.Errno) {
+func forkAndExecInChild(argv0 *byte, argv, envv []*byte, chroot, dir *byte, attr *ProcAttr, sys *SysProcAttr, pipe int) (pid int, err syscall.Errno) {
     // Set up and fork. This returns immediately in the parent or
     // if there's an error.
     r1, err1, p, locked := forkAndExecInChild1(argv0, argv, envv, chroot, dir, attr, sys, pipe)
@@ -521,4 +559,28 @@ func forkAndExecInChild(argv0 *byte, argv, envv []*byte, chroot, dir *byte, attr
     }
 
     return pid, 0
+}
+
+// writeUidGidMappings writes User ID and Group ID mappings for user namespaces
+// for a process and it is called from the parent process.
+func writeUidGidMappings(pid int, sys *SysProcAttr) error {
+    if sys.UidMappings != nil {
+        uidf := "/proc/" + itoa(pid) + "/uid_map"
+        if err := writeIDMappings(uidf, sys.UidMappings); err != nil {
+            return err
+        }
+    }
+
+    if sys.GidMappings != nil {
+        // If the kernel is too old to support /proc/PID/setgroups, writeSetGroups will return ENOENT; this is OK.
+        if err := writeSetgroups(pid, sys.GidMappingsEnableSetgroups); err != nil && err != syscall.ENOENT {
+            return err
+        }
+        gidf := "/proc/" + itoa(pid) + "/gid_map"
+        if err := writeIDMappings(gidf, sys.GidMappings); err != nil {
+            return err
+        }
+    }
+
+    return nil
 }

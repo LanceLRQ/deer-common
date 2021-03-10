@@ -16,11 +16,14 @@ func runtime_AfterFork()
 //go:linkname runtime_AfterForkInChild syscall.runtime_AfterForkInChild
 func runtime_AfterForkInChild()
 
-//go:linkname writeUidGidMappings syscall.writeUidGidMappings
-func writeUidGidMappings(pid int, sys *syscall.SysProcAttr) error
-
 //go:linkname formatIDMappings syscall.formatIDMappings
 func formatIDMappings(idMap []syscall.SysProcIDMap) []byte
+
+//go:linkname writeIDMappings syscall.writeIDMappings
+func writeIDMappings(path string, idMap []syscall.SysProcIDMap) error
+
+//go:linkname writeSetgroups syscall.writeSetgroups
+func writeSetgroups(pid int, enable bool) error
 
 //go:linkname rawSyscallNoError syscall.rawSyscallNoError
 func rawSyscallNoError(trap, a1, a2, a3 uintptr) (r1, r2 uintptr)
