@@ -257,7 +257,7 @@ func forkAndExecInChild(argv0 *byte, argv, envv []*byte, chroot, dir *byte, attr
     // Set resource limitations
     for _, rlimit := range rlimitOptions.Rlimits {
        if !rlimit.Enable { continue }
-       _, _, err1 := rawSyscall(funcPC(libc_setrlimit_trampoline), uintptr(rlimit.Which), uintptr(unsafe.Pointer(&rlimit.RLim)), 0)
+       _, _, err1 = rawSyscall(funcPC(libc_setrlimit_trampoline), uintptr(rlimit.Which), uintptr(unsafe.Pointer(&rlimit.RLim)), 0)
        if err1 != 0 {
            goto childerror
        }

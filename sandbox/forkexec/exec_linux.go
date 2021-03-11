@@ -512,7 +512,7 @@ func forkAndExecInChild1(argv0 *byte, argv, envv []*byte, chroot, dir *byte, att
     // Set resource limitations
     for _, rlimit := range rlimitOptions.Rlimits {
         if !rlimit.Enable { continue }
-        _, _, err1 := syscall.RawSyscall(syscall.SYS_SETRLIMIT, uintptr(rlimit.Which), uintptr(unsafe.Pointer(&rlimit.RLim)), 0)
+        _, _, err1 = syscall.RawSyscall(syscall.SYS_SETRLIMIT, uintptr(rlimit.Which), uintptr(unsafe.Pointer(&rlimit.RLim)), 0)
         if err1 != 0 {
             goto childerror
         }
