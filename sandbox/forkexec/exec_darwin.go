@@ -73,10 +73,10 @@ func forkAndExecInChild(argv0 *byte, argv, envv []*byte, chroot, dir *byte, attr
     fd := make([]int, len(attr.Files))
     nextfd = len(attr.Files)
     for i, ufd := range attr.Files {
-        if nextfd < int(ufd) {
-            nextfd = int(ufd)
-        }
-        fd[i] = int(ufd)
+       if nextfd < int(ufd) {
+           nextfd = int(ufd)
+       }
+       fd[i] = int(ufd)
     }
     nextfd++
 
@@ -184,50 +184,50 @@ func forkAndExecInChild(argv0 *byte, argv, envv []*byte, chroot, dir *byte, attr
     // Pass 1: look for fd[i] < i and move those up above len(fd)
     // so that pass 2 won't stomp on an fd it needs later.
     if pipe < nextfd {
-        _, _, err1 = rawSyscall(funcPC(libc_dup2_trampoline), uintptr(pipe), uintptr(nextfd), 0)
-        if err1 != 0 {
-            goto childerror
-        }
-        rawSyscall(funcPC(libc_fcntl_trampoline), uintptr(nextfd), syscall.F_SETFD, syscall.FD_CLOEXEC)
-        pipe = nextfd
-        nextfd++
+       _, _, err1 = rawSyscall(funcPC(libc_dup2_trampoline), uintptr(pipe), uintptr(nextfd), 0)
+       if err1 != 0 {
+           goto childerror
+       }
+       rawSyscall(funcPC(libc_fcntl_trampoline), uintptr(nextfd), syscall.F_SETFD, syscall.FD_CLOEXEC)
+       pipe = nextfd
+       nextfd++
     }
     for i = 0; i < len(fd); i++ {
-        if fd[i] >= 0 && fd[i] < int(i) {
-            if nextfd == pipe { // don't stomp on pipe
-                nextfd++
-            }
-            _, _, err1 = rawSyscall(funcPC(libc_dup2_trampoline), uintptr(fd[i]), uintptr(nextfd), 0)
-            if err1 != 0 {
-                goto childerror
-            }
-            rawSyscall(funcPC(libc_fcntl_trampoline), uintptr(nextfd), syscall.F_SETFD, syscall.FD_CLOEXEC)
-            fd[i] = nextfd
-            nextfd++
-        }
+       if fd[i] >= 0 && fd[i] < int(i) {
+           if nextfd == pipe { // don't stomp on pipe
+               nextfd++
+           }
+           _, _, err1 = rawSyscall(funcPC(libc_dup2_trampoline), uintptr(fd[i]), uintptr(nextfd), 0)
+           if err1 != 0 {
+               goto childerror
+           }
+           rawSyscall(funcPC(libc_fcntl_trampoline), uintptr(nextfd), syscall.F_SETFD, syscall.FD_CLOEXEC)
+           fd[i] = nextfd
+           nextfd++
+       }
     }
 
     // Pass 2: dup fd[i] down onto i.
     for i = 0; i < len(fd); i++ {
-        if fd[i] == -1 {
-            rawSyscall(funcPC(libc_close_trampoline), uintptr(i), 0, 0)
-            continue
-        }
-        if fd[i] == int(i) {
-            // dup2(i, i) won't clear close-on-exec flag on Linux,
-            // probably not elsewhere either.
-            _, _, err1 = rawSyscall(funcPC(libc_fcntl_trampoline), uintptr(fd[i]), syscall.F_SETFD, 0)
-            if err1 != 0 {
-                goto childerror
-            }
-            continue
-        }
-        // The new fd is created NOT close-on-exec,
-        // which is exactly what we want.
-        _, _, err1 = rawSyscall(funcPC(libc_dup2_trampoline), uintptr(fd[i]), uintptr(i), 0)
-        if err1 != 0 {
-            goto childerror
-        }
+       if fd[i] == -1 {
+           rawSyscall(funcPC(libc_close_trampoline), uintptr(i), 0, 0)
+           continue
+       }
+       if fd[i] == int(i) {
+           // dup2(i, i) won't clear close-on-exec flag on Linux,
+           // probably not elsewhere either.
+           _, _, err1 = rawSyscall(funcPC(libc_fcntl_trampoline), uintptr(fd[i]), syscall.F_SETFD, 0)
+           if err1 != 0 {
+               goto childerror
+           }
+           continue
+       }
+       // The new fd is created NOT close-on-exec,
+       // which is exactly what we want.
+       _, _, err1 = rawSyscall(funcPC(libc_dup2_trampoline), uintptr(fd[i]), uintptr(i), 0)
+       if err1 != 0 {
+           goto childerror
+       }
     }
 
     // By convention, we don't close-on-exec the fds we are
@@ -235,7 +235,7 @@ func forkAndExecInChild(argv0 *byte, argv, envv []*byte, chroot, dir *byte, attr
     // Programs that know they inherit fds >= 3 will need
     // to set them close-on-exec.
     for i = len(fd); i < 3; i++ {
-        rawSyscall(funcPC(libc_close_trampoline), uintptr(i), 0, 0)
+       rawSyscall(funcPC(libc_close_trampoline), uintptr(i), 0, 0)
     }
 
     // Detach fd 0 from tty
@@ -256,19 +256,19 @@ func forkAndExecInChild(argv0 *byte, argv, envv []*byte, chroot, dir *byte, attr
 
     // Set resource limitations
     for _, rlimit := range rlimitOptions.Rlimits {
-        if !rlimit.Enable { continue }
-        _, _, err1 := rawSyscall(funcPC(libc_setrlimit_trampoline), uintptr(rlimit.Which), uintptr(unsafe.Pointer(&rlimit.RLim)), 0)
-        if err1 != 0 {
-            goto childerror
-        }
+       if !rlimit.Enable { continue }
+       _, _, err1 := rawSyscall(funcPC(libc_setrlimit_trampoline), uintptr(rlimit.Which), uintptr(unsafe.Pointer(&rlimit.RLim)), 0)
+       if err1 != 0 {
+           goto childerror
+       }
     }
 
     // Set real time limitation
     if sys.Rlimit.RealTimeLimit > 0 {
-        _, _, err1 = syscall.RawSyscall(syscall.SYS_SETITIMER, ITIMER_REAL, uintptr(unsafe.Pointer(&rlimitOptions.ITimerValue)), 0)
-        if err1 != 0 {
-            goto childerror
-        }
+       _, _, err1 = syscall.RawSyscall(syscall.SYS_SETITIMER, ITIMER_REAL, uintptr(unsafe.Pointer(&rlimitOptions.ITimerValue)), 0)
+       if err1 != 0 {
+           goto childerror
+       }
     }
 
     // Time to exec.

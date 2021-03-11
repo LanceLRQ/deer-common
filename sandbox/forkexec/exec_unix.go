@@ -107,10 +107,10 @@ func forkExec(argv0 string, argv []string, attr *ProcAttr) (pid int, err error) 
     // Read child error status from pipe.
     syscall.Close(p[1])
     for {
-        n, err = readlen(p[0], (*byte)(unsafe.Pointer(&err1)), int(unsafe.Sizeof(err1)))
-        if err != syscall.EINTR {
-            break
-        }
+      n, err = readlen(p[0], (*byte)(unsafe.Pointer(&err1)), int(unsafe.Sizeof(err1)))
+      if err != syscall.EINTR {
+          break
+      }
     }
     syscall.Close(p[0])
     if err != nil || n != 0 {
@@ -120,7 +120,6 @@ func forkExec(argv0 string, argv []string, attr *ProcAttr) (pid int, err error) 
         if err == nil {
             err = syscall.EPIPE
         }
-
         // Child failed; wait for it to exit, to make sure
         // the zombies don't accumulate.
         _, err1 := syscall.Wait4(pid, &wstatus, 0, nil)
