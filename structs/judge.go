@@ -118,9 +118,9 @@ type TestCaseResult struct {
     ProgramOut   string `json:"program_out"`   // Program-stdout file path
     ProgramError string `json:"program_error"` // Program-stderr file path
 
-    JudgerOut    string `json:"judger_out"`    // Special judger checker's stdout
-    JudgerError  string `json:"judger_error"`  // Special judger checker's stderr
-    JudgerReport string `json:"judger_report"` // Special judger checker's report file
+    CheckerOut    string `json:"checker_out"`    // Special judge checker's stdout
+    CheckerError  string `json:"checker_error"`  // Special judge checker's stderr
+    CheckerReport string `json:"checker_report"` // Special judge checker's report file
 
     JudgeResult    int `json:"judge_result"`    // Judge result flag number
     PartiallyScore int `json:"partially_score"` // Testlib Partially Score or Math.floor(SameLines / TotalLines)

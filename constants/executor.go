@@ -17,9 +17,9 @@ const (
     JudgeFlagCE  = 7 // 7 Compile Error
     JudgeFlagSE  = 8 // 8 System Error
 
-    JudgeFlagSpecialJudgeTimeout        = 10 // 10 Special Judger Time OUT
-    JudgeFlagSpecialJudgeError          = 11 // 11 Special Judger ERROR
-    JudgeFlagSpecialJudgeRequireChecker = 12 // 12 Special Judger Finish, Need Standard Checkup
+    JudgeFlagSpecialJudgeTimeout        = 10 // 10 Special Judge Checker Time OUT
+    JudgeFlagSpecialJudgeError          = 11 // 11 Special Judge Checker ERROR
+    JudgeFlagSpecialJudgeRequireChecker = 12 // 12 Special Judge Checker Finish, Need Standard Checkup
 )
 
 const (
@@ -76,9 +76,9 @@ var FlagMeansMap = map[int]string{
     6:  "Output Limit Exceeded",
     7:  "Compile Error",
     8:  "System Error",
-    9:  "Special Judger Time OUT",
-    10: "Special Judger ERROR",
-    11: "Special Judger Finish, Need Standard Checkup",
+    9:  "Special Judge Checker Time OUT",
+    10: "Special Judge Checker ERROR",
+    11: "Special Judge Checker Finish, Need Standard Checkup",
 }
 
 // 给动态语言、带虚拟机的语言设定虚拟机自身的初始内存大小
