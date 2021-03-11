@@ -67,9 +67,9 @@ func mergeResultBinary(
         }
         err = readAndWriteToTempFile(testCaseWriter, testCase.ProgramOut, options.SessionDir)
         _ = readAndWriteToTempFile(testCaseWriter, testCase.ProgramError, options.SessionDir)
-        _ = readAndWriteToTempFile(testCaseWriter, testCase.JudgerOut, options.SessionDir)
-        _ = readAndWriteToTempFile(testCaseWriter, testCase.JudgerError, options.SessionDir)
-        _ = readAndWriteToTempFile(testCaseWriter, testCase.JudgerReport, options.SessionDir)
+        _ = readAndWriteToTempFile(testCaseWriter, testCase.CheckerOut, options.SessionDir)
+        _ = readAndWriteToTempFile(testCaseWriter, testCase.CheckerError, options.SessionDir)
+        _ = readAndWriteToTempFile(testCaseWriter, testCase.CheckerReport, options.SessionDir)
     }
 
     return tmpFilePath, nil
