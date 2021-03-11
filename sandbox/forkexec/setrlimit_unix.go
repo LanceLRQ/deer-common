@@ -38,7 +38,7 @@ type ExecRLimit struct {
     RealTimeLimit int           // 真实时间限制 (ms, 触发SIGALRM)
     MemoryLimit   int           // 内存限制 (KB)
     FileSizeLimit int           // 文件读写限制 (B)
-    StackLimit    int           // 栈大小限制 (KB，0表示用内存限制的值，-1表示不限制) （macos不搞这个）
+    StackLimit    int           // 栈大小限制 (KB，0表示用内存限制的值，-1表示不限制，建议设置为2倍。Mac下有坑，不要去设置。)
 }
 
 type RlimitOptions struct {
@@ -51,7 +51,7 @@ func GetRlimitOptions (sysRlimit *ExecRLimit) *RlimitOptions {
     // Make stack limit
     stackLimit := uint64(sysRlimit.StackLimit)
     if stackLimit <= 0 {
-        stackLimit = uint64(sysRlimit.MemoryLimit * 1024)
+        stackLimit = uint64(sysRlimit.MemoryLimit * 2)
     }
 
     return &RlimitOptions {
@@ -71,7 +71,7 @@ func GetRlimitOptions (sysRlimit *ExecRLimit) *RlimitOptions {
                 Enable: sysRlimit.MemoryLimit > 0,
                 RLim: syscall.Rlimit{
                     Cur: uint64(sysRlimit.MemoryLimit * 1024),
-                    Max: uint64(sysRlimit.MemoryLimit * 1024),
+                    Max: uint64(sysRlimit.MemoryLimit * 1024 * 2),
                 },
             },
             // Set memory limit: RLIMIT_AS
@@ -88,8 +88,8 @@ func GetRlimitOptions (sysRlimit *ExecRLimit) *RlimitOptions {
                Which: syscall.RLIMIT_STACK,
                Enable: stackLimit > 0 && sysRlimit.StackLimit >= 0 && runtime.GOOS != "darwin" ,
                RLim: syscall.Rlimit{
-                   Cur: stackLimit,
-                   Max: stackLimit,
+                   Cur: stackLimit * 1024,
+                   Max: stackLimit * 1024 + 1024,
                },
             },
             // Set file size limit: RLIMIT_FSIZE
