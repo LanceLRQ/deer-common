@@ -6,12 +6,12 @@ type RustCompileProvider struct {
 	CodeCompileProvider
 }
 
-func NewRustCompileProvider () *RustCompileProvider {
+func NewRustCompileProvider() *RustCompileProvider {
 	return &RustCompileProvider{
 		CodeCompileProvider{
-			isReady: false,
+			isReady:  false,
 			realTime: false,
-			Name: "rust",
+			Name:     "rust",
 		},
 	}
 }
@@ -37,7 +37,6 @@ func (prov *RustCompileProvider) Compile() (result bool, errmsg string) {
 	return
 }
 
-
 func (prov *RustCompileProvider) GetRunArgs() (args []string) {
 	args = []string{prov.programFilePath}
 	return
@@ -46,5 +45,3 @@ func (prov *RustCompileProvider) GetRunArgs() (args []string) {
 func (prov *RustCompileProvider) IsCompileError(remsg string) bool {
 	return false
 }
-
-

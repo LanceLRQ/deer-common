@@ -4,7 +4,7 @@ package forkexec
 
 import (
 	"syscall"
-	_  "unsafe"
+	_ "unsafe"
 )
 
 //go:linkname runtime_BeforeFork syscall.runtime_BeforeFork
