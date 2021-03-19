@@ -30,6 +30,7 @@ type CompileCommandsStruct struct {
     Ruby    string `json:"ruby"`
     Python2 string `json:"python2"`
     Python3 string `json:"python3"`
+		Rust    string `json:"rust"`
 }
 
 var CompileCommands = CompileCommandsStruct{
@@ -42,6 +43,7 @@ var CompileCommands = CompileCommandsStruct{
     Ruby:    "ruby -c %s",
     Python2: "python -u %s",
     Python3: "python3 -u %s",
+		Rust:    "rustc %s -o %s",
 }
 
 type CodeCompileProviderInterface interface {
