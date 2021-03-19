@@ -37,17 +37,6 @@ func (prov *RustCompileProvider) Compile() (result bool, errmsg string) {
 	return
 }
 
-// 手动编译
-func (prov *RustCompileProvider) ManualCompile(source string, target string, libraryDir []string) (bool, string) {
-	cmd := fmt.Sprintf(CompileCommands.Rust, source, target)
-	if libraryDir != nil {
-			for _, v := range libraryDir {
-					cmd += fmt.Sprintf(" -I %s", v)
-			}
-	}
-	result, err := prov.shell(cmd)
-	return result, err
-}
 
 func (prov *RustCompileProvider) GetRunArgs() (args []string) {
 	args = []string{prov.programFilePath}
