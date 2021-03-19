@@ -92,7 +92,7 @@ var MemorySizeForJIT = map[string]int{
     "golang":  0,
     "php":     131072, // php
     "ruby":    65536,  // ruby
-		"ruct": 0,
+		"rust": 0,
 }
 
 func PlaceMemorySizeForJIT(configFile string) error {
