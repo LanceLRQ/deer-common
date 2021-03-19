@@ -8,11 +8,11 @@ type RustCompileProvider struct {
 
 func NewRustCompileProvider () *RustCompileProvider {
 	return &RustCompileProvider{
-			CodeCompileProvider{
-					isReady: false,
-					realTime: false,
-					Name: "rust",
-			},
+		CodeCompileProvider{
+			isReady: false,
+			realTime: false,
+			Name: "rust",
+		},
 	}
 }
 
@@ -32,7 +32,7 @@ func (prov *RustCompileProvider) Init(code string, workDir string) error {
 func (prov *RustCompileProvider) Compile() (result bool, errmsg string) {
 	result, errmsg = prov.shell(fmt.Sprintf(CompileCommands.Rust, prov.codeFilePath, prov.programFilePath))
 	if result {
-			prov.isReady = true
+		prov.isReady = true
 	}
 	return
 }
