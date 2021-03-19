@@ -11,7 +11,7 @@ func NewRustCompileProvider () *RustCompileProvider {
 			CodeCompileProvider{
 					isReady: false,
 					realTime: false,
-					Name: "gcc",
+					Name: "rust",
 			},
 	}
 }
