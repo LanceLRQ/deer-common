@@ -8,3 +8,5 @@ require (
 	github.com/satori/go.uuid v1.2.0 // indirect
 	golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897 // indirect
 )
+
+// replace github.com/LanceLRQ/deer-common@1.14 => ./pkg/deer-common
